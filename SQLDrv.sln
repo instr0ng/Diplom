@@ -1,0 +1,28 @@
+﻿
+Microsoft Visual Studio Solution File, Format Version 12.00
+# Visual Studio Version 16
+VisualStudioVersion = 16.0.31515.178
+MinimumVisualStudioVersion = 10.0.40219.1
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SQLDrv", "SQLDrv\SQLDrv.csproj", "{B8AD9FBD-B396-4AF9-9654-E824ACC96F77}"
+EndProject
+Global
+	GlobalSection(SolutionConfigurationPlatforms) = preSolution
+		Debug|Any CPU = Debug|Any CPU
+		ffff|Any CPU = ffff|Any CPU
+		Release|Any CPU = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(ProjectConfigurationPlatforms) = postSolution
+		{B8AD9FBD-B396-4AF9-9654-E824ACC96F77}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B8AD9FBD-B396-4AF9-9654-E824ACC96F77}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B8AD9FBD-B396-4AF9-9654-E824ACC96F77}.ffff|Any CPU.ActiveCfg = ffff|Any CPU
+		{B8AD9FBD-B396-4AF9-9654-E824ACC96F77}.ffff|Any CPU.Build.0 = ffff|Any CPU
+		{B8AD9FBD-B396-4AF9-9654-E824ACC96F77}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B8AD9FBD-B396-4AF9-9654-E824ACC96F77}.Release|Any CPU.Build.0 = Release|Any CPU
+	EndGlobalSection
+	GlobalSection(SolutionProperties) = preSolution
+		HideSolutionNode = FALSE
+	EndGlobalSection
+	GlobalSection(ExtensibilityGlobals) = postSolution
+		SolutionGuid = {D383E6C6-89D3-421D-B5FE-D1DBC35353E9}
+	EndGlobalSection
+EndGlobal
