@@ -14,7 +14,6 @@ using System.Configuration;
 using System.Net;
 using Microsoft.SqlServer.Management.Smo;
 using Microsoft.SqlServer.Management.Common;
-using System.ComponentModel;
 using Microsoft.Win32;
 
 namespace SQLDrv
@@ -22,65 +21,42 @@ namespace SQLDrv
     public partial class Settings : Form
     {
         public static SqlConnection sqlConnection = null;
-        string datapath = "C:/ORIONBASE/MSDE2012";
-
-        Server server;
 
         string currtab = null;
         string compID = "", RSTypeID = "", RScompID = "", ComID = "", RSParID = "0";
-        
-       
+
+        public static Settings f1;
+
         public Settings()
         {
             InitializeComponent();
         }
 
-        private string UPDDataPath(string datapath) 
-        {
-            var s = datapath.ToCharArray();
-            var data = "";
-            for (int i = 0; i < s.Length; i++)
-            {
-                if (s[i] == '/')
-                    s[i] = @"\"[0];
-                data += s[i];
-            }
-            return data;
-        }
 
+        //Функция для исполнения команды остановки локального инстанса 
+        /*
         public void ExecuteCommandSync(object command)
         {
             try
             {
-                // create the ProcessStartInfo using "cmd" as the program to be run,
-                // and "/c " as the parameters.
-                // Incidentally, /c tells cmd that we want it to execute the command that follows,
-                // and then exit.
                 System.Diagnostics.ProcessStartInfo procStartInfo =
-                    new System.Diagnostics.ProcessStartInfo("cmd", "/c " + command);
-
-                // The following commands are needed to redirect the standard output.
-                // This means that it will be redirected to the Process.StandardOutput StreamReader.
-                procStartInfo.RedirectStandardOutput = true;
-                procStartInfo.UseShellExecute = false;
-                // Do not create the black window.
-                procStartInfo.CreateNoWindow = true;
-                // Now we create a process, assign its ProcessStartInfo and start it
+                    new System.Diagnostics.ProcessStartInfo("cmd", "/c " + command)
+                    {
+                        RedirectStandardOutput = true,
+                        UseShellExecute = false,
+                        CreateNoWindow = true
+                    };
                 System.Diagnostics.Process proc = new System.Diagnostics.Process();
                 proc.StartInfo = procStartInfo;
                 proc.Start();
-                // Get the output into a string
                 string result = proc.StandardOutput.ReadToEnd();
-                //MessageBox.Show(result);
-                // Display the command output.
             }
-            catch (Exception objException)
-            {
-                // Log the exception
-            }
+            catch {}
         }
+        */
 
 
+        //Функция для запроса имени сервера из реестра
         private string GetServerName()
         {
             RegistryKey LocalMachineRegKey;
@@ -90,6 +66,7 @@ namespace SQLDrv
             return server_name;
         }
 
+        //Функция для запроса имени базы данных из реестра
         private string GetDbName()
         {
             RegistryKey LocalMachineRegKey;
@@ -99,22 +76,13 @@ namespace SQLDrv
             return DB_name;
         }
 
-        private void BDList_TextChanged(object sender, EventArgs e) //{UPDDataPath(datapath)}\
-        {
-           
-        }
 
+        //Функция для соединения с сервером и подключения базы данных
         private void StartConnection()
         {
-            var connectionString = $@"User ID= sa;Password = 123456;Initial Catalog={GetDbName()};Data Source={GetServerName()}"; //new
-            //MessageBox.Show(connectionString);
-            // Console.Read("sqllocaldb.exe stop MSSQLLocalDB");
-            ExecuteCommandSync("sqllocaldb.exe stop MSSQLLocalDB");
+            var connectionString = $@"User ID= sa;Password = 123456;Initial Catalog={GetDbName()};Data Source={GetServerName()}"; 
 
-
-            //System.Diagnostics.Process.Start("cmd.exe", "/C sqllocaldb.exe stop MSSQLLocalDB");
-
-
+            //ExecuteCommandSync("sqllocaldb.exe stop MSSQLLocalDB");
 
             try
             {
@@ -126,21 +94,17 @@ namespace SQLDrv
                 MessageBox.Show("Не удалось подключиться к базе данных" + '\n' + objException.Message);
             }
 
-
-
             if (sqlConnection.State == ConnectionState.Open)
             {
                 ConnState.Text = "Подключение к базе данных прошло успешно";
                 ConnState.ForeColor = Color.Green;
 
-
+                upd.Enabled = true;
                 TestBT.Enabled = true;
                 TabSelect.Enabled = true;
                 InsertBtn.Enabled = true;
-                UpdateBtn.Enabled = true;
                 DeleteBtn.Enabled = true;
-                dataGridView1.Enabled = true;
-                AutoSettings.Enabled = true;
+                updtab.Enabled = true;
                 currtab = "comps";
 
                 UpdateTab();
@@ -148,59 +112,8 @@ namespace SQLDrv
         }
 
 
-        public void Settings_Load(object sender, EventArgs e)
-        {
-            var i = 0;
-            if (Directory.Exists(datapath))
-                while (i < Directory.GetFiles(datapath, "*.mdf").Length)
-                {
-                    BDList.Items.Add(Directory.GetFiles(datapath, "*.mdf")[i].Remove(0, Directory.GetFiles(datapath, "*.mdf")[i].LastIndexOf(@"\") + 1));
-                    i++;
-                }
-
-            
-        }
-
-
-
-        //DATABASES-----------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-        private void PathDB_Click(object sender, EventArgs e)
-        {
-            BDList.Items.Clear();
-            FolderDialog.ShowDialog();
-            datapath = FolderDialog.SelectedPath;
-            var i = 0;
-            var name = "";
-
-            if (datapath != "")
-                while (i < Directory.GetFiles(datapath, "*.mdf").Length)
-                {
-                    name = Directory.GetFiles(datapath, "*.mdf")[i].Remove(0, Directory.GetFiles(datapath, "*.mdf")[i].LastIndexOf(@"\") + 1);
-                    BDList.Items.Add(name);
-                    i++;
-                }
-        }
-
-
-        //------------------------------------------------------------------------------------------------------------------------------------------------
-
-
-
-
-
-
-        private void CompAllCheck_CheckedChanged(object sender, EventArgs e)
-        {
-            CheckBox box = (CheckBox)sender;
-            for (int i = 0; i < 8; i++)
-                CompCB.SetItemChecked(i, box.Checked);
-        }
-
+        
+        //Функция добавления выбранных объектов в базу данных
         private void INSBtn_Click(object sender, EventArgs e)
         {
             SqlCommand command;
@@ -209,7 +122,7 @@ namespace SQLDrv
 
                 case "comps":
 
-                    if ((CompIDBox.Text == "") || (CompIPBox.Text == ""))
+                    if ((CompIDBox.Text == "") || (CompIPBox.Text == "") || (ComPCIDBox.Text == ""))
                     {
                         MessageBox.Show("Заполнены не все обязательные поля");
                         break;
@@ -240,7 +153,7 @@ namespace SQLDrv
 
                 case "rslines":
 
-                    if ((RSIDBox.Text == "") || (RSIPBox.Text == "") || (RSAddressBox.Text == ""))
+                    if ((RSIDBox.Text == "") || (RSIPBox.Text == "") || (RSAddressBox.Text == "") || (RSPCBox.Text == "") || (RSPortBox.Text == ""))
                     {
                         MessageBox.Show("Заполнены не все обязательные поля");
                         break;
@@ -271,18 +184,21 @@ namespace SQLDrv
                    
             }
 
-
-            
-
             // Обновление таблицы справа
             UpdateTab();
         }
 
+        //Функция обновления TextBox'ов
         private void UpdTextBoxes(CheckBox box, TextBox text)
         {
+            if (RSPortBox.Text == "")
+                AutoAddr.Enabled = false;
+            else AutoAddr.Enabled = true;
+
             if (box.Checked)
             {
                 SqlCommand command;
+
                 switch (text.Tag)
                 {
                     case "PC":
@@ -299,7 +215,7 @@ namespace SQLDrv
                             {
                                 int i = 0;
                                 text.Text = Dns.GetHostAddresses(Dns.GetHostName())[i].ToString();
-                                while (text.Text.Remove(7, text.Text.Length-7) != "192.168")    //text.Text.Remove(7, text.Text.Length - 7) != "192.168"
+                                while (text.Text.Remove(7, text.Text.Length-7) != "192.168")
                                 {
                                     text.Text = Dns.GetHostAddresses(Dns.GetHostName())[i].ToString();
                                     i++;
@@ -332,6 +248,13 @@ namespace SQLDrv
                             text.Enabled = false;
                         }
 
+                        if (text.AccessibleName == "RSAddr")
+                        {
+                            command = new SqlCommand($"select coalesce(max(Glineno)+1, 1) from rslines where comportid = {RSPortBox.Text.Remove(0, 3)}", sqlConnection);
+                            text.Text = command.ExecuteScalar().ToString();
+                            text.Enabled = false;
+                        }
+
                         if (text.AccessibleName == "RSIP")
                         {
                             text.Text = "127.0.0.1";
@@ -351,6 +274,7 @@ namespace SQLDrv
         }
 
 
+        //Функция обновления ComboBox'ов
         private void UpdComboBoxes(params ComboBox[] box)
         {
             SqlCommand command;
@@ -363,21 +287,19 @@ namespace SQLDrv
                         switch (box[i].AccessibleName)
                         {
                             case "PCID":
-                                if (box[i].Items.Count == 0)
+
+                                box[i].Items.Clear();
+                                box[i].Text = "";
+
+                                command = new SqlCommand("select name from Comps", sqlConnection);
+                                read = command.ExecuteReader();
+                                while (read.Read())
                                 {
-                                    box[i].Items.Clear();
-                                    box[i].Text = "";
-
-                                    command = new SqlCommand("select name from Comps", sqlConnection);
-                                    read = command.ExecuteReader();
-                                    while (read.Read())
-                                    {
-                                        box[i].Items.Add(read.GetValue(0).ToString());
-                                    }
-                                    read.Close();
-
-                                    box[i].SelectedIndex = box[i].Items.Count - 1;
+                                    box[i].Items.Add(read.GetValue(0).ToString());
                                 }
+                                read.Close();
+                                if (box[i].Items.Count != 0)
+                                    box[i].SelectedIndex = box[i].Items.Count - 1;
                                 break;
                             case "INTID":
                                 box[i].SelectedIndex = 2;
@@ -416,25 +338,23 @@ namespace SQLDrv
                             case "PCID":
                                 ///////////////////////////////////////////////////////////////////
                                 ///
-                                if (box[i].Items.Count == 0)
+
+                                box[i].Items.Clear();
+                                command = new SqlCommand("select name from Comps", sqlConnection);
+                                read = command.ExecuteReader();
+                                while (read.Read())
                                 {
-                                    box[i].Items.Clear();
-                                    command = new SqlCommand("select name from Comps", sqlConnection);
-                                    read = command.ExecuteReader();
-                                    while (read.Read())
-                                    {
-                                        box[i].Items.Add(read.GetValue(0).ToString());
-                                    }
-                                    read.Close();
-
-                                    if (box[i].Items.Count == 0)
-                                        box[i].Text = "";
-
-                                    if (box[i].Text == "")
-                                        box[i].SelectedIndex = box[i].Items.Count - 1;
-                                    
+                                    box[i].Items.Add(read.GetValue(0).ToString());
                                 }
-                                if (box[i].SelectedIndex > -1)
+                                read.Close();
+
+                                if (box[i].Items.Count == 0)
+                                    box[i].Text = "";
+
+                                if (box[i].Items.Count != 0)
+                                    box[i].SelectedIndex = box[i].Items.Count - 1;
+
+                                if (box[i].SelectedIndex != -1)
                                     buf = box[i].Text;
 
                                 if (!box[i + 1].Focused)
@@ -444,24 +364,23 @@ namespace SQLDrv
                                 break;
                             case "PORTID":
                                 ///////////////////////////////////////////////////////////////////////
-                                if (box[i].Items.Count == 0)
-                                    if ((box[i - 1].SelectedIndex > -1)&& (buf != "-"))
+                                
+                                    if ((box[i - 1].SelectedIndex > -1))
                                     {
-                                        //MessageBox.Show(buf);
                                         box[i].Text = "";
-                                        command = new SqlCommand($"select cp.Number from comps c join comports cp on c.id = cp.computerID where c.name = '{buf}'", sqlConnection);
+                                        command = new SqlCommand($"select cp.Number from comps c join comports cp on c.id = cp.computerID where c.name = '{box[i-1].Text}'", sqlConnection);
                                         read = command.ExecuteReader();
-                                        while (read.Read())
-                                            box[i].Items.Add("COM" + read.GetValue(0).ToString());
+                                    while (read.Read())
+                                    {
+                                        box[i].Items.Add("COM" + read.GetValue(0).ToString());
+                                    }
                                         read.Close();
                                         if (!box[i].Focused)
                                             box[i].SelectedIndex = box[i].Items.Count - 1;
                                     }
-                                //MessageBox.Show(box[i].SelectedIndex.ToString());
-                                if ((box[i].SelectedIndex > -1) && (buf != "-") && (buf != null))
+                                if ((box[i].SelectedIndex > -1) && (buf != null))
                                 {
                                     command = new SqlCommand($"select cp.ID from comps c join comports cp on c.id = cp.computerID where c.name = '{buf}' and number = {box[i].Text.Remove(0, 3)}", sqlConnection);
-                                    //MessageBox.Show(command.CommandText);
                                     buf = command.ExecuteScalar().ToString();
                                 }
 
@@ -471,7 +390,7 @@ namespace SQLDrv
                                 //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
                                 break;
                             case "PARID":
-                                if ((box[i - 1].SelectedIndex > -1)&&(buf != "-"))
+                                if ((box[i - 1].SelectedIndex > -1) && (buf != "-"))
                                 {
                                     box[i].Text = "";
                                     command = new SqlCommand($"select name from rslines where comportID = {buf}", sqlConnection);
@@ -487,54 +406,7 @@ namespace SQLDrv
 
         }
 
-        private void DeleteBtn_Click(object sender, EventArgs e)
-        {
-            switch (TabSelect.SelectedIndex)
-            {
-                case 0:
-                    SqlCommand command;
-                    string DelcompID=dataGridView1.CurrentRow.Cells[0].Value.ToString();
-                    command = new SqlCommand($"delete from devitems where computerID = {DelcompID}", sqlConnection);
-                    command.ExecuteNonQuery();
-
-                    command = new SqlCommand($"delete r from Comports c join rslines r on c.id = r.comportID where c.computerID = {DelcompID}", sqlConnection);
-                    command.ExecuteNonQuery();
-
-                    command = new SqlCommand($"delete from comports where computerID = {DelcompID}", sqlConnection);
-                    command.ExecuteNonQuery();
-
-                    command = new SqlCommand($"delete from comps where ID = {DelcompID}", sqlConnection);
-                    command.ExecuteNonQuery();
-                    break;
-
-                case 1:
-
-                    string delportID = dataGridView1.CurrentRow.Cells[0].Value.ToString();
-                    command = new SqlCommand($"delete d from RsLines as r inner join DevItems as d on r.id = d.deviceID where r.comportID = {delportID}", sqlConnection);
-                    command.ExecuteNonQuery();
-
-                    command = new SqlCommand($"delete from RSLines where comportID = {delportID}", sqlConnection);
-                    command.ExecuteNonQuery();
-
-                    command = new SqlCommand($"delete from comports where ID = {delportID}", sqlConnection);
-                    command.ExecuteNonQuery();
-                    break;
-
-                case 2:
-                    string delRS = dataGridView1.CurrentRow.Cells[0].Value.ToString();
-
-                    command = new SqlCommand($"delete from DevItems where DeviceID = {delRS}", sqlConnection);
-                    command.ExecuteNonQuery();
-
-                    command = new SqlCommand($"delete from RSLines where ID = {delRS}D", sqlConnection);
-                    command.ExecuteNonQuery();
-                    break;
-            
-            
-            
-            }
-            UpdateTab();
-        }
+        
 
  
 
@@ -551,14 +423,18 @@ namespace SQLDrv
                     if (sqlConnection.State == ConnectionState.Open)
                     {
                         UpdComboBoxes(ComPCIDBox, ComNumBox, ComAdaptorBox, ComTypeBox, ComBaudBox);
+                        UpdTextBoxes(ComAutoID, ComIDBox);
+                        UpdTextBoxes(ComAutoIP, ComIPBox);
                     }
                     break;
                 case 2:
                     currtab = "rslines";
                     if (sqlConnection.State == ConnectionState.Open)
                     {
-
                         UpdComboBoxes(RSPCBox, RSPortBox, RSParentBox, RSTypeBox, RSInterfaceBox);
+                        UpdTextBoxes(RSAutoID, RSIDBox);
+                        UpdTextBoxes(RSAutoIP, RSIPBox);
+                        UpdTextBoxes(AutoAddr, RSAddressBox);
                     }
                     break;
             }
@@ -572,8 +448,9 @@ namespace SQLDrv
 
         private void TestBT_Click(object sender, EventArgs e)
         {
-            Form Test = new Test();
+            Test Test = new Test(this);
             Test.Show();
+            this.Enabled = false;
         }
 
 
@@ -644,6 +521,10 @@ namespace SQLDrv
             }
         }
 
+
+        //Функции для обновления элементов управления при изменении их состояний
+        /////////////////////////////////////////////////////////////////////////////////////////////////////
+
         private void ComPCIDBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             UpdTextBoxes(CompAutoID, CompIDBox);
@@ -679,6 +560,11 @@ namespace SQLDrv
             UpdTextBoxes(CompAutoIP, CompIPBox);
         }
 
+        private void AutoAddr_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdTextBoxes(AutoAddr, RSAddressBox);
+        }
+
         private void RSPCBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             ComboBox box = (ComboBox)sender;
@@ -693,18 +579,49 @@ namespace SQLDrv
                 UpdComboBoxes(RSPCBox, box, RSParentBox);
         }
 
+        private void CompAllCheck_CheckedChanged(object sender, EventArgs e)
+        {
+            CheckBox box = (CheckBox)sender;
+            for (int i = 0; i < 8; i++)
+                CompCB.SetItemChecked(i, box.Checked);
+        }
+
+        /////////////////////////////////////////////////////////////////////////////////////////////////////
+        
+        //Запуск соединения при нажатии на кнопку
         private void ConnState_Click(object sender, EventArgs e)
         {
             StartConnection();
         }
 
-        private string Select(string table, string column, string where) 
+        //Функция выделения всей строки по выделенной ячейке
+        private void updtab_CellClick(object sender, DataGridViewCellMouseEventArgs e)
         {
-            SqlCommand command;
-            command = new SqlCommand($"select { column } from { table } where { where}", sqlConnection);
-            return command.ExecuteScalar().ToString();
+            for (int i = 0; i < updtab.SelectedCells.Count; i++)
+            {
+                updtab.Rows[updtab.SelectedCells[i].RowIndex].Selected = true;
+            }
         }
 
+
+        //Функция обновления компонентов формы для кнопки "Обновить"
+        private void upd_Click(object sender, EventArgs e)
+        {
+            switch (currtab)
+            {
+                case "comports":
+                    UpdComboBoxes(ComPCIDBox, ComNumBox, ComAdaptorBox, ComTypeBox, ComBaudBox);
+                    break;
+
+                case "rslines":
+                    UpdComboBoxes(RSPCBox, RSPortBox, RSParentBox, RSTypeBox, RSInterfaceBox);
+                    break;
+            }
+           
+            UpdateTab();
+        }
+
+        //Функция обновления таблицы 
         private void UpdateTab()
         {
             SqlCommand table = new SqlCommand($"select * from {currtab}", sqlConnection);
@@ -712,9 +629,11 @@ namespace SQLDrv
             dataAdapter.SelectCommand = table;
             DataSet ds = new DataSet();
             dataAdapter.Fill(ds, "name");
-            dataGridView1.DataSource = ds.Tables["name"].DefaultView;
+            updtab.DataSource = ds.Tables["name"].DefaultView;
         }
 
+
+        //Функция добавления компонентов в таблицу DevItems
         private void AddDev()
         {
             SqlCommand command;
@@ -755,23 +674,92 @@ namespace SQLDrv
             }
         }
 
-        //private void UpdatePage()
-        //{
-        //    SqlCommand command;
-        //    SqlDataReader read = null;
-        //    RSTypeID = null;
-        //}
-
-        //---------------------------------------------------------------------------------------------------------------
-
         //DELETE FUNCTIONS-----------------------------------------------------------------------------------------------
 
-        private void DeleteRS(string portID, string compID)
+        //Функция удаления строк вручную
+        private void DeleteBtn_Click(object sender, EventArgs e)
         {
-            
+            if (updtab.CurrentRow.Cells[0].Value.ToString() != "")
+            {
+                SqlCommand command;
+                string[] DelID;
+                int i = 0;
+                int count = 0;
+
+                DelID = new string[updtab.SelectedRows.Count];
+                while (i < updtab.SelectedRows.Count)
+                {
+                    if (updtab.SelectedRows[i].Cells[0].Value != null)
+                    {
+                        DelID[i] = updtab.SelectedRows[i].Cells[0].Value.ToString();
+                    }
+                    i++;
+                }
+                count = updtab.SelectedRows.Count;
+                
+                
+                switch (TabSelect.SelectedIndex)
+                {
+                    case 0:
+                        for (i = 0; i < count; i++)
+                        {
+                            if (DelID[i] != null)
+                            {
+                                command = new SqlCommand($"delete from devitems where computerID = {DelID[i]}", sqlConnection);
+                                command.ExecuteNonQuery();
+
+                                command = new SqlCommand($"delete r from Comports c join rslines r on c.id = r.comportID where c.computerID = {DelID[i]}", sqlConnection);
+                                command.ExecuteNonQuery();
+
+                                command = new SqlCommand($"delete from comports where computerID = {DelID[i]}", sqlConnection);
+                                command.ExecuteNonQuery();
+
+                                command = new SqlCommand($"delete from comps where ID = {DelID[i]}", sqlConnection);
+                                command.ExecuteNonQuery();
+                            }
+                        }
+                        break;
+
+                    case 1:
+                        for (i = 0; i < count; i++)
+                        {
+                            if (DelID[i] != null)
+                            {
+                                command = new SqlCommand($"delete d from RsLines as r inner join DevItems as d on r.id = d.deviceID where r.comportID = {DelID[i]}", sqlConnection);
+                                command.ExecuteNonQuery();
+
+                                command = new SqlCommand($"delete from RSLines where comportID = {DelID[i]}", sqlConnection);
+                                command.ExecuteNonQuery();
+
+                                command = new SqlCommand($"delete from comports where ID = {DelID[i]}", sqlConnection);
+                                command.ExecuteNonQuery();
+                            }
+                        }
+                        break;
+
+                    case 2:
+                        for (i = 0; i < count; i++)
+                        {
+                            if (DelID[i] != null)
+                            {
+                                command = new SqlCommand($"delete from DevItems where DeviceID = {DelID[i]}", sqlConnection);
+                                command.ExecuteNonQuery();
+
+                                command = new SqlCommand($"delete from RSLines where ID = {DelID[i]}", sqlConnection);
+                                command.ExecuteNonQuery();
+                            }
+                        }
+                        break;
+
+                }
+                UpdateTab();
+            }
+            else
+            {
+                MessageBox.Show("Не выбрана строка для удаления.");
+            }
         }
-
-
+        
         //---------------------------------------------------------------------------------------------------------------
     }
 }

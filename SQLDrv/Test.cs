@@ -11,6 +11,7 @@ using System.IO;
 using System.Data.SqlClient;
 using System.Configuration;
 using System.Net;
+using System.Threading;
 
 namespace SQLDrv
 {
@@ -19,14 +20,17 @@ namespace SQLDrv
 
         SqlConnection conn;
         string[] Clerc = new string[1000];
+        public Form set;
 
-
-        public Test()
+        public Test(Form f)
         {
+            set = f;
             InitializeComponent();
             conn = Settings.sqlConnection;
         }
 
+        //Таблицы 
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         static readonly string[] Mfam = new string[]
         {
             "Авилов", "Липин", "Истлентьев", "Чеботов", "Андроников", "Бабин", "Карпенцев", "Бойдало", "Терещенко", "Ветров",
@@ -146,7 +150,12 @@ namespace SQLDrv
         0x74, 0x2A, 0xC8, 0x96, 0x15, 0x4B, 0xA9, 0xF7,
         0xB6, 0xE8, 0x0A, 0x54, 0xD7, 0x89, 0x6B, 0x35
         };
+        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+        /////Таблицы 
+        
 
+
+        //Функция кодирования по CRC8
         public static byte CRC8(byte[] bytes, int len)
         {
             byte crc = 0;
@@ -155,11 +164,7 @@ namespace SQLDrv
             return crc;
         }
 
-        private void tabPage2_Click(object sender, EventArgs e)
-        {
-
-        }
-
+        //Функция для выбора всех чекбоксов
         private void CompAllCheck_CheckedChanged(object sender, EventArgs e)
         {
             CheckBox box = (CheckBox)sender;
@@ -167,26 +172,38 @@ namespace SQLDrv
                 CompCB.SetItemChecked(i, box.Checked);
         }
 
+       //Функция запуска добавления при нажатии на кнопку "Добавить"
         private void insertBT_Click(object sender, EventArgs e)
         {
+            time.Text = "Идет добавление объектов в базу данных...";
+            time.ForeColor = Color.Blue;
+            _ = Sel();
+            
+        }
+
+        //Функция добавления выбранных компонентов в базу данных
+        private async Task Sel()
+        {
             SqlCommand command;
+
             progressBar1.Visible = true;
-            progressBar1.Maximum = (int)countPC.Value;
-            progressBar1.Value = 0;
+            progressBar1.Style = ProgressBarStyle.Marquee;
+            progressBar1.MarqueeAnimationSpeed = 50;
+
             DateTime dold = DateTime.Now;
 
             double Gtype = 1;
-            string pcip = "";
+            string pcip = "127.0.0.1";
 
             if (Dns.GetHostAddresses(Dns.GetHostName()).Length > 0)
             {
-                int j = 0;
-                pcip = Dns.GetHostAddresses(Dns.GetHostName())[j].ToString();
-                while (pcip.Remove(7, pcip.Length - 7) != "192.168")    //text.Text.Remove(7, text.Text.Length - 7) != "192.168"
-                {
-                    pcip = Dns.GetHostAddresses(Dns.GetHostName())[j].ToString();
-                    j++;
-                }
+                pcip = Dns.GetHostAddresses(Dns.GetHostName())[0].ToString();
+                for (int i = 0; i < Dns.GetHostAddresses(Dns.GetHostName()).Length; i++)
+                    if (Dns.GetHostAddresses(Dns.GetHostName())[i].ToString().Length > 7)
+                    {
+                        if (Dns.GetHostAddresses(Dns.GetHostName())[i].ToString().Remove(7, Dns.GetHostAddresses(Dns.GetHostName())[i].ToString().Length - 7) == "192.168")
+                            pcip = Dns.GetHostAddresses(Dns.GetHostName())[i].ToString();
+                    }
             }
 
             for (int j = 0; j < 8; j++)
@@ -196,141 +213,120 @@ namespace SQLDrv
             command = new SqlCommand("select coalesce(MAX(ID) + 1, 1) from comps", conn);
             string pcid = command.ExecuteScalar().ToString();
 
-            command = new SqlCommand("DECLARE @number INT \n" +
-                "SET @number = 1 \n" +
-                $"DECLARE @id INT \n" +
-                $"SET @id = {pcid}; \n" +
-                $"WHILE @number <= {countPC.Value} \n" +
-                $"BEGIN \n" +
-                $"insert into Comps values (@id, @id, '{CompsName.Text}' + convert(varchar, @number), NULL, '{pcip}', {Gtype},NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL); \n" +
-                $"set @number = @number + 1; \n" +
-                $"set @id = @id + 1; \n" +
-                $"END", conn);
-            command.ExecuteNonQuery();
+            command = new SqlCommand("select coalesce(MAX(ID) + 1, 1) from comports", conn);
+            string comid = command.ExecuteScalar().ToString();
 
-            /*
+            command = new SqlCommand("select coalesce(MAX(ID) + 1, 1) from rslines", conn);
+            string rsid = command.ExecuteScalar().ToString();
 
-            for (int i = 1; i <= countPC.Value; i++)
+            command = new SqlCommand("select coalesce(max(ID) + 1, 1) from DevItems", conn);
+            string DevItmID = command.ExecuteScalar().ToString();
+
+            try
             {
-                //COMPS------------------------------------------------------------------------------------------------------------
-                
-                command = new SqlCommand("select coalesce(MAX(ID) + 1, 1) from comps", conn);
-                string pcid = command.ExecuteScalar().ToString();
-
-
-                command = new SqlCommand("insert into Comps values (@ID, @ID, @Name, NULL, @IP, @Gtype,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL);", conn);
-                command.Parameters.AddWithValue("ID", pcid);
-                command.Parameters.AddWithValue("Name", CompsName.Text + i);
-                command.Parameters.AddWithValue("IP", pcip);
-               
-                command.Parameters.AddWithValue("Gtype", Gtype);
+                command = new SqlCommand("CREATE TABLE rslist (id int, name varchar(50))", conn);
                 command.ExecuteNonQuery();
-
-                //COMPORTS------------------------------------------------------------------------------------------------------------
-                for (int comc = 1; comc <= PortCount.Value; comc++)
-                {
-                    command = new SqlCommand("select coalesce(MAX(ID) + 1, 1) from comports", conn);
-                    string comid = command.ExecuteScalar().ToString();
-
-                    command = new SqlCommand("insert into Comports values (@ID, @compID, @Number, @Adaptor, 3, @Type, NULL, @IP, 1, NULL, NULL, 1, NULL, @Baud);", conn);
-                    command.Parameters.AddWithValue("ID", comid);
-                    command.Parameters.AddWithValue("compID", pcid);
-                    command.Parameters.AddWithValue("Number", comc);
-                    command.Parameters.AddWithValue("IP", "127.0.0.1");
-                    command.Parameters.AddWithValue("Adaptor", 2);
-                    command.Parameters.AddWithValue("Type", ComType.SelectedIndex + 1);
-                    command.Parameters.AddWithValue("Baud", 9600);
-
-                    command.ExecuteNonQuery();
-                    int adrpr = 1;
-
-                    //RSLINES------------------------------------------------------------------------------------------------------------
-                    for (int rs = 0; rs < rslist.CheckedItems.Count; rs++)
-                    {
-                        command = new SqlCommand("select DeviceType from dtypesElement where name = @name", conn);
-                        command.Parameters.AddWithValue("name", rslist.CheckedItems[rs]);
-                        string RSTypeID = command.ExecuteScalar().ToString();
-
-                        for (int rsc = 1; rsc <= RScount.Value; rsc++)
-                        {
-                            command = new SqlCommand("select coalesce(MAX(ID) + 1, 1) from rslines", conn);
-                            string rsid = command.ExecuteScalar().ToString();
-
-                            command = new SqlCommand("insert into RSLines values (@ID, @ID, @Com, @PKUID, @GLine, @Name, @Type, NULL, 0, 0, 0, @IP, NULL, NULL, NULL, 0, 0, NULL, 0, @Interface, 0, NULL, 0, 1, NULL);", conn);
-                            command.Parameters.AddWithValue("ID", rsid);
-                            command.Parameters.AddWithValue("Com", comid);
-                            command.Parameters.AddWithValue("PKUID", 0);
-                            command.Parameters.AddWithValue("GLine", adrpr);
-                            command.Parameters.AddWithValue("Name", rslist.CheckedItems[rs] + " (" + adrpr + ")");
-                            command.Parameters.AddWithValue("IP", "127.0.0.1");
-                            command.Parameters.AddWithValue("Interface", 1);
-                            command.Parameters.AddWithValue("Type", RSTypeID);
-
-                            command.ExecuteNonQuery();
-
-
-                            //DEVITEMS----------------------------------------------------------------------------------------------------
-                            command = new SqlCommand("select CountReader from dTypesElement where name = @name", conn);
-                            command.Parameters.AddWithValue("name", rslist.CheckedItems[rs]);
-                            int countReader = (int)command.ExecuteScalar();
-
-                            for (int j = 1; j <= countReader; j++)
-                            {
-                                command = new SqlCommand("select coalesce(max(ID) + 1, 1) from DevItems", conn);
-                                string DevItmID = command.ExecuteScalar().ToString();
-                                command = new SqlCommand("insert into DevItems values (@ID, @compID, @DeviceID, @Address, @ID, @Name, Null, 0, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)", conn);
-                                command.Parameters.AddWithValue("ID", DevItmID);
-                                command.Parameters.AddWithValue("CompID", pcid);
-                                command.Parameters.AddWithValue("DeviceId", rsid);
-                                command.Parameters.AddWithValue("Address", Convert.ToInt32(adrpr) * 256 + j);
-                                command.Parameters.AddWithValue("Name", "Считыватель " + j + ". Прибор " + adrpr);
-                                command.ExecuteNonQuery();
-                            }
-
-                            command = new SqlCommand("select CountKey from dTypesElement where name = @name", conn);
-                            command.Parameters.AddWithValue("name", rslist.CheckedItems[rs]);
-                            int countKey = (int)command.ExecuteScalar();
-
-                            for (int j = 1; j <= countKey; j++)
-                            {
-                                command = new SqlCommand("select coalesce(max(ID) + 1, 1) from DevItems", conn);
-                                string DevItmID = command.ExecuteScalar().ToString();
-                                command = new SqlCommand("insert into DevItems values (@ID, @compID, @DeviceID, @Address, @ID, @Name, Null, 0, 9, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)", conn);
-                                command.Parameters.AddWithValue("ID", DevItmID);
-                                command.Parameters.AddWithValue("CompID", pcid);
-                                command.Parameters.AddWithValue("DeviceId", rsid);
-                                command.Parameters.AddWithValue("Address", Convert.ToInt32(adrpr) * 256 + j);
-                                command.Parameters.AddWithValue("Name", "Реле " + j + ". Прибор " + adrpr);
-                                command.ExecuteNonQuery();
-                            }
-
-                            command = new SqlCommand("select CountShl from dTypesElement where name = @name", conn);
-                            command.Parameters.AddWithValue("name", rslist.CheckedItems[rs]);
-                            int countShl = (int)command.ExecuteScalar();
-
-                            for (int j = 1; j <= countShl; j++)
-                            {
-                                command = new SqlCommand("select coalesce(max(ID) + 1, 1) from DevItems", conn);
-                                string DevItmID = command.ExecuteScalar().ToString();
-                                command = new SqlCommand("insert into DevItems values (@ID, @compID, @DeviceID, @Address, @ID, @Name, Null, 1, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)", conn);
-                                command.Parameters.AddWithValue("ID", DevItmID);
-                                command.Parameters.AddWithValue("CompID", pcid);
-                                command.Parameters.AddWithValue("DeviceId", rsid);
-                                command.Parameters.AddWithValue("Address", Convert.ToInt32(adrpr) * 256 + j);
-                                command.Parameters.AddWithValue("Name", "ШС " + j + ". Прибор " + adrpr);
-                                command.ExecuteNonQuery();
-                            }
-                            adrpr++;
-                        }
-                    }
-                }
-                progressBar1.Value++;
             }
+            catch
+            {
+                command = new SqlCommand("DELETE rslist", conn);
+                command.ExecuteNonQuery();
+            }
+
+            for (int i = 0; i < rslist.CheckedItems.Count; i++)
+            {
+                command = new SqlCommand($"insert into rslist values ({i + 1}, '{rslist.CheckedItems[i]}')", conn);
+                command.ExecuteNonQuery();
+            }
+
+            command = new SqlCommand(
+                "DECLARE @ncom INT, @rscomid INT, @rstypeid INT, @rs INT, @rscnt INT, @ipc INT, @icom INT, @irs INT, @jrs INT, @idev INT, @addr INT, @cntReader INT, @cntKey INT, @cntShl INT \n" +
+                "DECLARE @rsname varchar(50) \n" +
+                $"DECLARE @pcid INT, @comid INT, @rsid INT, @devid INT \n" +
+                $"SET @pcid = {pcid} \n" +
+                $"SET @rscnt = {rslist.CheckedItems.Count} \n" +
+                $"SET @devid = {DevItmID} \n" +
+                $"SET @comid = {comid} \n" +
+                $"SET @rsid = {rsid} \n" +
+                $"SET @ipc = 1 \n" +
+                $"SET @icom = 1 \n" +
+                $"SET @irs = 1 \n" +
+                $"SET @idev = 1 \n" +
+                $"SET @jrs = 1; \n" +
+                $"set @irs = 1 \n" +
+                $"WHILE @ipc <= {countPC.Value} \n" +
+                $"BEGIN \n" +
+                    $"insert into Comps values (@pcid, @pcid, '{CompsName.Text}' + convert(varchar, @ipc), NULL, '{pcip}', {Gtype},NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL); \n" +
+                    $"set @icom = 1 \n" +
+
+                    $"WHILE @icom <= {PortCount.Value} \n" +
+                    $"BEGIN \n" +
+                        $"insert into Comports values(@comid, @pcid, @icom, 2, 3, {ComType.SelectedIndex + 1}, NULL, '127.0.0.1', 1, NULL, NULL, 1, NULL, 9600);  \n" +
+                        $"set @irs = 1 \n" +
+                        $"set @addr = 1 \n " +
+
+                        $"WHILE @irs <= @rscnt \n" +
+                        $"BEGIN \n" +
+                            $"set @rstypeid = (select distinct DeviceType from dtypesElement d join rslist r on d.name = r.name where r.id = @irs) \n" +
+                            $"set @rsname = (select distinct name from rslist where id = @irs) \n" +
+                            $"set @jrs = 1 \n" +
+
+                            $"WHILE @jrs <= {RScount.Value} \n" +
+                            $"BEGIN \n" +
+                                $"insert into RSLines values (@rsid, @rsid, @comid, 0, @addr, @rsname, @rstypeid, NULL, 0, 0, 0, '127.0.0.1', NULL, NULL, NULL, 0, 0, NULL, 0, 1, 0, NULL, 0, 1, NULL); \n" +
+                                $"set @cntReader = (select distinct CountReader from dTypesElement where name = @rsname and DeviceVersionStr IS NULL) \n" +
+                                $"set @cntKey = (select distinct CountKey from dTypesElement where name = @rsname and DeviceVersionStr IS NULL) \n" +
+                                $"set @cntShl = (select distinct CountShl from dTypesElement where name = @rsname and DeviceVersionStr IS NULL) \n" +
+                                $"set @idev = 1 \n" +
+
+                                $"WHILE @idev <= @cntReader \n" +
+                                $"BEGIN \n" +
+                                    $"insert into DevItems values (@devid, @pcid, @rsid, @addr * 256 + @idev, @devid, 'Считыватель ' + convert(varchar, @idev) + '. Прибор ' + convert(varchar, @addr), Null, 0, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) \n" +
+                                    $"set @idev = @idev + 1 \n" +
+                                    $"set @devid = @devid + 1 \n" +
+                                $"END \n" +
+                                $"set @idev = 1 \n" +
+
+                                $"WHILE @idev <= @cntKey \n" +
+                                $"BEGIN \n" +
+                                    $"insert into DevItems values (@devid, @pcid, @rsid, @addr * 256 + @idev, @devid, 'Реле ' + convert(varchar, @idev) + '. Прибор ' + convert(varchar, @addr), Null, 0, 9, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) \n" +
+                                    $"set @idev = @idev + 1 \n" +
+                                    $"set @devid = @devid + 1 \n" +
+                                $"END \n" +
+                                $"set @idev = 1 \n" +
+
+                                $"WHILE @idev <= @cntKey \n" +
+                                $"BEGIN \n" +
+                                    $"insert into DevItems values (@devid, @pcid, @rsid, @addr * 256 + @idev, @devid, 'ШС ' + convert(varchar, @idev) + '. Прибор ' + convert(varchar, @addr), Null, 0, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) \n" +
+                                    $"set @idev = @idev + 1 \n" +
+                                    $"set @devid = @devid + 1 \n" +
+                                $"END \n" +
+
+                                $"set @addr = @addr + 1 \n" +
+                                $"set @jrs = @jrs + 1 \n" +
+                                $"set @rsid = @rsid + 1 \n" +
+                            $"END \n" +
+                            $"set @irs = @irs + 1 \n" +
+                        $"END \n" +
+
+                        $"set @icom = @icom + 1 \n" +
+                        $"set @comid = @comid + 1 \n" +
+                    $"END \n" +
+
+                    $"set @ipc = @ipc + 1; \n" +
+                    $"set @pcid = @pcid + 1; \n" +
+                $"END", conn);
+
+            command.CommandTimeout = 5000;
+
+            await command.ExecuteNonQueryAsync();
+
+            time.Text = "Объекты добавлены";
+            time.ForeColor = Color.Green;
+
             progressBar1.Visible = false;
-            TimeSpan sp = DateTime.Now - dold;
-            time.Text = sp.ToString();
-            */
         }
+
 
         private void potrCBx_CheckedChanged(object sender, EventArgs e)
         {
@@ -342,6 +338,8 @@ namespace SQLDrv
             RSGB.Enabled = true;
         }
 
+
+        //Загрузка формы
         private void Test_Load(object sender, EventArgs e)
         {
             rslist.Items.Clear();
@@ -355,35 +353,34 @@ namespace SQLDrv
             read.Close();
         }
 
-
+       
+        //Функция для удаления по названию компьютера
         private void DeleteBT_Click(object sender, EventArgs e)
         {
+            progressBar1.Visible = true;
+            progressBar1.Maximum = 5;
             SqlCommand command;
             string DelcompID = CompsName.Text;
             command = new SqlCommand("delete d from comps c join devitems d  on c.id = d.computerID where c.name like '%" + DelcompID + "%'", conn);
-            // command.Parameters.AddWithValue("ID", DelcompID);
             command.ExecuteNonQuery();
-
+            progressBar1.Value++;
             command = new SqlCommand("update r set name = null, devicetype = null, priority = null from comps c join Comports cp on c.id = cp.computerID join rslines r on cp.id = r.comportID where c.name like '%" + DelcompID + "%'", conn);
             command.ExecuteNonQuery();
+            progressBar1.Value++;
             command = new SqlCommand("delete r from comps c join Comports cp on c.id = cp.computerID join rslines r on cp.id = r.comportID where c.name like '%" + DelcompID + "%'", conn);
-            //command.Parameters.AddWithValue("ID", DelcompID);
             command.ExecuteNonQuery();
-
+            progressBar1.Value++;
             command = new SqlCommand("delete cp from comps c join comports cp on c.id = cp.computerID where  c.name like '%" + DelcompID + "%'", conn);
-            //command.Parameters.AddWithValue("ID", DelcompID);
             command.ExecuteNonQuery();
-
+            progressBar1.Value++;
             command = new SqlCommand("delete from comps where name like '%" + DelcompID + "%'", conn);
-            //command.Parameters.AddWithValue("ID", DelcompID);
             command.ExecuteNonQuery();
+            progressBar1.Value++;
+            progressBar1.Visible = false;
+            progressBar1.Value = 0;
         }
 
-        private void pictureBox1_Click(object sender, EventArgs e)
-        {
-            MessageBox.Show("Работает - не трогай");
-        }
-
+        //Обновление страниц
         private void tab_SelectedIndexChanged(object sender, EventArgs e)
         {
             SqlCommand command;
@@ -436,6 +433,7 @@ namespace SQLDrv
             }
         }
 
+        //Обновление компонентов страницы при выборе порта
         private void selCom_SelectedIndexChanged(object sender, EventArgs e)
         {
             var command = new SqlCommand("select cp.ID from comps c join comports cp on c.id=cp.computerID where c.Name = @name and number = @num", conn);
@@ -450,11 +448,9 @@ namespace SQLDrv
             while (read.Read())
                 ParentCB.Items.Add(read.GetValue(0).ToString());
             read.Close();
-
-
         }
 
-
+        //Обновление компонентов страницы при выборе компа
         private void SelPC_SelectedIndexChanged(object sender, EventArgs e)
         {
             var command = new SqlCommand("select number from comps c join comports cp on c.id=cp.computerID where c.name = @name", conn);
@@ -468,8 +464,10 @@ namespace SQLDrv
             selCom.SelectedIndex = selCom.Items.Count - 1;
         }
 
+        //Функция добавления компонентов (для вклвдки приборы)
         private void InsPR_Click(object sender, EventArgs e)
         {
+            
             string RSpar = "0";
             RSPB.Visible = true;
             RSPB.Maximum = (int)PRnum.Value;
@@ -573,10 +571,13 @@ namespace SQLDrv
                 RSPB.Value++;
             }
             RSPB.Visible = false;
+            RSPB.Value = 0;
         }
 
         private void DelPR_Click(object sender, EventArgs e)
         {
+            RSPB.Visible = true;
+            RSPB.Maximum = 3;
             SqlCommand command = new SqlCommand("select cp.ID from comps c join comports cp on c.id=cp.computerID where c.Name = @name and number = @num", conn);
             command.Parameters.AddWithValue("name", SelPC.Text);
             command.Parameters.AddWithValue("num", selCom.Text.Remove(0, 3));
@@ -584,30 +585,22 @@ namespace SQLDrv
             command = new SqlCommand("delete d from rslines r join devitems d on r.id = d.deviceID where r.comportID = @ID and r.name like '" + RStype.Text + "%'", conn);
             command.Parameters.AddWithValue("ID", comID);
             command.ExecuteNonQuery();
-
-            command = new SqlCommand("delete from rslines where comportID = @ID and name like '" + RStype.Text + "%'", conn);
+            RSPB.Value++;
+            command = new SqlCommand("update r set name = null, devicetype = null, priority = null from comports c join rslines r on c.id=r.comportID where c.id = @ID and r.name like '%" + RStype.Text + "%'", conn);
             command.Parameters.AddWithValue("ID", comID);
             command.ExecuteNonQuery();
+            RSPB.Value++;
+            command = new SqlCommand("delete from rslines where comportID = @ID and name is null", conn);
+            command.Parameters.AddWithValue("ID", comID);
+            command.ExecuteNonQuery();
+            RSPB.Value++;
+            RSPB.Visible = false;
+            RSPB.Value = 0;
         }
 
-        private void ParentCB_SelectedIndexChanged(object sender, EventArgs e)
-        {
+        
 
-
-        }
-
-        private void RStype_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-
-        }
-
-        private void SelectTypePass_SelectedIndexChanged(object sender, EventArgs e)
-        {
-
-            ChangeSettingsList(PassSettingsList, sender);
-        }
-
+        //Функция добавления пароля
         private void insertPass(string pass)
         {
             if ((userlist.Items.Count > 0))
@@ -643,13 +636,18 @@ namespace SQLDrv
             }
         }
 
+        //Кодирование ключа
         private void insPass_Click(object sender, EventArgs e)
         {
             byte[] tes = new byte[8];
             string nstr;
+            passPB.Visible = true;
+            passPB.Maximum = (int)numPass.Value; 
+            SqlCommand command = new SqlCommand("select count(*) from pmark", conn);
+            int k = (int)command.ExecuteScalar();
             for (uint j = 0; j < numPass.Value; j++)
             {
-                ulong test = 0xf272a595;
+                ulong test = (ulong)k;
                 char[] ascii;
                 test += j;
                 test <<= 8;
@@ -701,12 +699,18 @@ namespace SQLDrv
                 }
 
                 insertPass(nstr);
+                passPB.Value++;
             }
+            passPB.Visible = false;
+            passPB.Value = 0;
         }
 
+        //Функция добавления сотрудников
         private void userINS_Click(object sender, EventArgs e)
         {
             Random rand = new Random();
+            userPB.Visible = true;
+            userPB.Maximum = (int)userNum.Value;
             for (int i = 0; i < userNum.Value; i++)
             {
                 SqlCommand command = new SqlCommand("select coalesce(max(ID) + 1, 1) from pList", conn);
@@ -734,9 +738,13 @@ namespace SQLDrv
                     command.Parameters.AddWithValue("Time", DateTime.Now);
                     command.ExecuteScalar();
                 }
+                userPB.Value++;
             }
+            userPB.Visible = false;
+            userPB.Value = 0;
         }
 
+        //Чекбокс для рандомного выбора сотрудника для добавления пароля
         private void Ruser_CheckedChanged(object sender, EventArgs e)
         {
             if (Ruser.Checked)
@@ -747,6 +755,13 @@ namespace SQLDrv
             {
                 userlist.Enabled = true;
             }
+        }
+
+
+        //Функции изменения окна с параметрами пароля
+        private void SelectTypePass_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ChangeSettingsList(PassSettingsList, sender);
         }
 
         private void ChangeSettingsList(object sender, object type)
@@ -798,19 +813,27 @@ namespace SQLDrv
 
         }
 
-        private void PassSettingsList_SelectedIndexChanged(object sender, EventArgs e)
+        //Функция удаления паролей по id сотрудника
+        private void passDel_Click(object sender, EventArgs e)
         {
-
+            userPB.Visible = true;
+            userPB.Maximum = 1;
+            string name = userlist.Text;
+            string owner = name.Remove(0, name.LastIndexOf("(") + 1);
+            owner = owner.Remove(owner.Length - 1, 1);
+            SqlCommand command = new SqlCommand("delete from pmark where owner = @ownerID", conn);
+            command.Parameters.AddWithValue("ownerID", owner);
+            command.ExecuteScalar();
+            userPB.Value++;
+            userPB.Visible = false;
+            userPB.Value = 0;
         }
 
-        private void ClercsBox_SelectedIndexChanged(object sender, EventArgs e)
+
+        private void Test_FormClosed(object sender, FormClosedEventArgs e)
         {
-
-        }
-
-        private void PasswordBox_TextChanged(object sender, EventArgs e)
-        {
-
+            set.Enabled = true;
+            set.Focus();
         }
     }
 }
