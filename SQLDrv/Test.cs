@@ -1,17 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.IO;
 using System.Data.SqlClient;
-using System.Configuration;
 using System.Net;
-using System.Threading;
 
 namespace SQLDrv
 {
@@ -163,6 +156,57 @@ namespace SQLDrv
                 crc = crc8Table[crc ^ bytes[i]];
             return crc;
         }
+
+
+        //Функция кодирования пароля
+        private string codPass(byte[] pass)
+        {
+            char[] ascii;
+            ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x1 });
+            string nstr="";
+            for (int i = 0; i < pass.Length; i++)
+            {
+                switch (pass[i])
+                {
+                    case 0x0:
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
+                        nstr += ascii[0].ToString();
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x1 });
+                        nstr += ascii[0].ToString();
+                        break;
+                    case 0xFE:
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
+                        nstr += ascii[0].ToString();
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x2 });
+                        nstr += ascii[0].ToString();
+                        break;
+                    case 0x20:
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
+                        nstr += ascii[0].ToString();
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x3 });
+                        nstr += ascii[0].ToString();
+                        break;
+                    case 0x5C:
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
+                        nstr += ascii[0].ToString();
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x4 });
+                        nstr += ascii[0].ToString();
+                        break;
+                    case 0xA:
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
+                        nstr += ascii[0].ToString();
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x5 });
+                        nstr += ascii[0].ToString();
+                        break;
+                    default:
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { pass[i] });
+                        nstr += ascii[0].ToString();
+                        break;
+                }
+            }
+            return nstr;
+        }
+
 
         //Функция для выбора всех чекбоксов
         private void CompAllCheck_CheckedChanged(object sender, EventArgs e)
@@ -601,7 +645,7 @@ namespace SQLDrv
         
 
         //Функция добавления пароля
-        private void insertPass(string pass)
+        private void insertPass(string pass, int typePass, int config)
         {
             if ((userlist.Items.Count > 0))
             {
@@ -623,8 +667,10 @@ namespace SQLDrv
                 owner = name.Remove(0, name.LastIndexOf("(") + 1);
                 owner = owner.Remove(owner.Length - 1, 1);
 
-                command = new SqlCommand("insert pMark values (@ID, 4, 0, 128, @key, @key2, 16128, @owner, @name, 1, 1, @ds, @de, 0, NULL, NULL, 1, NULL, NULL)", Settings.sqlConnection);
+                command = new SqlCommand("insert pMark values (@ID, @typeP, 0, @conf, @key, @key2, 0, @owner, @name, 1, 2, @ds, @de, 0, NULL, NULL, 1, NULL, NULL)", Settings.sqlConnection);
                 command.Parameters.AddWithValue("ID", passID);
+                command.Parameters.AddWithValue("typeP", typePass);
+                command.Parameters.AddWithValue("conf", config);
                 command.Parameters.AddWithValue("key", pass);
                 command.Parameters.AddWithValue("key2", "ю");
                 command.Parameters.AddWithValue("owner", owner);
@@ -639,67 +685,51 @@ namespace SQLDrv
         //Кодирование ключа
         private void insPass_Click(object sender, EventArgs e)
         {
+            SqlCommand command;
             byte[] tes = new byte[8];
-            string nstr;
+            int k;
             passPB.Visible = true;
-            passPB.Maximum = (int)numPass.Value; 
-            SqlCommand command = new SqlCommand("select count(*) from pmark", conn);
-            int k = (int)command.ExecuteScalar();
-            for (uint j = 0; j < numPass.Value; j++)
+            passPB.Maximum = (int)numPass.Value;
+            switch (SelectTypePassBox.SelectedIndex)
             {
-                ulong test = (ulong)k;
-                char[] ascii;
-                test += j;
-                test <<= 8;
-                test += 0x1;
-                tes = BitConverter.GetBytes(test);
-                tes[7] = CRC8(BitConverter.GetBytes(test), 7);
-                ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x1 });
-                nstr = ascii[0].ToString();
-                for (int i = 0; i < tes.Length; i++)
-                {
-
-                    switch (tes[i])
+                case 0 or 1:
+                    command = new SqlCommand("select count(*) from pmark", conn);
+                    k = (int)command.ExecuteScalar()+100000;
+                    for (int j = 0; j<numPass.Value; j++)
                     {
-                        case 0x0:
-                            ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
-                            nstr += ascii[0].ToString();
-                            ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x1 });
-                            nstr += ascii[0].ToString();
-                            break;
-                        case 0xFE:
-                            ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
-                            nstr += ascii[0].ToString();
-                            ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x2 });
-                            nstr += ascii[0].ToString();
-                            break;
-                        case 0x20:
-                            ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
-                            nstr += ascii[0].ToString();
-                            ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x3 });
-                            nstr += ascii[0].ToString();
-                            break;
-                        case 0x5C:
-                            ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
-                            nstr += ascii[0].ToString();
-                            ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x4 });
-                            nstr += ascii[0].ToString();
-                            break;
-                        case 0xA:
-                            ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
-                            nstr += ascii[0].ToString();
-                            ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x5 });
-                            nstr += ascii[0].ToString();
-                            break;
-                        default:
-                            ascii = Encoding.GetEncoding(0).GetChars(new byte[] { tes[i] });
-                            nstr += ascii[0].ToString();
-                            break;
-                    }
-                }
+                        string str = (k+j).ToString();
+                        byte[] hex = new byte[str.Length + 1];
+                        hex[0] = (byte)str.Length;
+                        for (int i = 1; i < hex.Length; i++)
+                            hex[i] = Encoding.GetEncoding(0).GetBytes(str)[i - 1];
 
-                insertPass(nstr);
-                passPB.Value++;
+                        for (int i = 1; i < hex.Length; i++)
+                        {
+                            hex[i] += hex[i - 1];
+                        }
+                 
+                        insertPass(codPass(hex), SelectTypePassBox.SelectedIndex + 1, 64);
+                        passPB.Value++;
+                    }
+                    break;
+
+                case 2 or 3:
+                    command = new SqlCommand("select count(*) from pmark", conn);
+                    k = (int)command.ExecuteScalar();
+                    ulong test = (ulong)k+1;
+                    for (uint j = 0; j < numPass.Value; j++)
+                    {
+                        test += j;
+                        test <<= 8;
+                        test += 0x1;
+                        tes = BitConverter.GetBytes(test);
+                        tes[7] = CRC8(BitConverter.GetBytes(test), 7);
+
+                        insertPass(Encoding.GetEncoding(0).GetChars(new byte[] {0x1})[0].ToString()+codPass(tes), SelectTypePassBox.SelectedIndex+1, 128);
+                        passPB.Value++;
+
+                    }
+                    break;
             }
             passPB.Visible = false;
             passPB.Value = 0;
@@ -784,7 +814,6 @@ namespace SQLDrv
             switch (typebox.SelectedIndex)
             {
                 case 0:
-                    PasswordBox.Enabled = true;
                     box.Items.Add("Менеджер сервера");
                     box.Items.Add("Администратор базы данных");
                     box.Items.Add("Оперативная задача");

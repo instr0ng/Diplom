@@ -1,25 +1,65 @@
 ﻿using System;
-using System.Diagnostics;
-using System.Collections.Generic;
-using System.ComponentModel;
 using System.Data;
 using System.Drawing;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
-using System.IO;
 using System.Data.SqlClient;
-using System.Configuration;
 using System.Net;
-using Microsoft.SqlServer.Management.Smo;
-using Microsoft.SqlServer.Management.Common;
 using Microsoft.Win32;
 
 namespace SQLDrv
 {
     public partial class Settings : Form
     {
+
+        private string codPass(byte[] pass)
+        {
+            char[] ascii;
+            ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x1 });
+            string nstr = "";
+            for (int i = 0; i < pass.Length; i++)
+            {
+                switch (pass[i])
+                {
+                    case 0x0:
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
+                        nstr += ascii[0].ToString();
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x1 });
+                        nstr += ascii[0].ToString();
+                        break;
+                    case 0xFE:
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
+                        nstr += ascii[0].ToString();
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x2 });
+                        nstr += ascii[0].ToString();
+                        break;
+                    case 0x20:
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
+                        nstr += ascii[0].ToString();
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x3 });
+                        nstr += ascii[0].ToString();
+                        break;
+                    case 0x5C:
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
+                        nstr += ascii[0].ToString();
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x4 });
+                        nstr += ascii[0].ToString();
+                        break;
+                    case 0xA:
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
+                        nstr += ascii[0].ToString();
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x5 });
+                        nstr += ascii[0].ToString();
+                        break;
+                    default:
+                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { pass[i] });
+                        nstr += ascii[0].ToString();
+                        break;
+                }
+            }
+            return nstr;
+        }
+
         public static SqlConnection sqlConnection = null;
 
         string currtab = null;
@@ -31,29 +71,6 @@ namespace SQLDrv
         {
             InitializeComponent();
         }
-
-
-        //Функция для исполнения команды остановки локального инстанса 
-        /*
-        public void ExecuteCommandSync(object command)
-        {
-            try
-            {
-                System.Diagnostics.ProcessStartInfo procStartInfo =
-                    new System.Diagnostics.ProcessStartInfo("cmd", "/c " + command)
-                    {
-                        RedirectStandardOutput = true,
-                        UseShellExecute = false,
-                        CreateNoWindow = true
-                    };
-                System.Diagnostics.Process proc = new System.Diagnostics.Process();
-                proc.StartInfo = procStartInfo;
-                proc.Start();
-                string result = proc.StandardOutput.ReadToEnd();
-            }
-            catch {}
-        }
-        */
 
 
         //Функция для запроса имени сервера из реестра
@@ -190,11 +207,12 @@ namespace SQLDrv
                         break;
                     }
 
-                    command = new SqlCommand($"select id from comps where name = '{ComPCIDBox.Text}'", sqlConnection);
-                    compID = command.ExecuteScalar().ToString();
-
                     Insert("plist", ClID.Text, ClNameBox.Text, ClFirstNameBox.Text, ClMidNameBox.Text, (ClStatusBox.SelectedIndex + 1).ToString(), ClTabID.Text, DateTime.Now.ToString());
                     UpdTextBoxes(ComAutoID, ComIDBox);
+                    break;
+
+                case "pmark":
+                  insPass_Click();
                     break;
 
             }
@@ -206,9 +224,7 @@ namespace SQLDrv
         //Функция обновления TextBox'ов
         private void UpdTextBoxes(CheckBox box, TextBox text)
         {
-            if (RSPortBox.Text == "")
-                AutoAddr.Enabled = false;
-            else AutoAddr.Enabled = true;
+            
 
             if (box.Checked)
             {
@@ -301,6 +317,10 @@ namespace SQLDrv
                     text.Text = "";
                 }
             }
+
+            if (RSPortBox.Text == "")
+                AutoAddr.Enabled = false;
+            else AutoAddr.Enabled = true;
         }
 
 
@@ -441,6 +461,26 @@ namespace SQLDrv
                                 break;
                         }
                         break;
+                    case "PASS":
+                        userlist.Items.Clear();
+                        userlist.Text = "";
+                        command = new SqlCommand("select Name, Firstname, Midname, ID from pList", sqlConnection);
+                        read = command.ExecuteReader();
+                        while (read.Read())
+                        {
+                            try
+                            {
+                                userlist.Items.Add(read.GetValue(0).ToString() + " " + read.GetValue(1).ToString().Remove(1, read.GetValue(1).ToString().Length - 1) + ". " + read.GetValue(2).ToString().Remove(1, read.GetValue(2).ToString().Length - 1) + "." + "(" + read.GetValue(3).ToString() + ")");
+                            }
+                            catch
+                            {
+                            }
+
+                        }
+                        read.Close();
+
+                        userlist.SelectedIndex = userlist.Items.Count - 1;
+                        break;
                 }
 
         }
@@ -486,6 +526,13 @@ namespace SQLDrv
                         UpdTextBoxes(ClAutoTabID, ClTabID);
                         UpdTextBoxes(AutoAddr, RSAddressBox);
                         UpdComboBoxes(ClStatusBox);
+                    }
+                    break;
+                case 4:
+                    currtab = "pmark";
+                    if (sqlConnection.State == ConnectionState.Open)
+                    {
+                        UpdComboBoxes(userlist);
                     }
                     break;
             }
@@ -575,7 +622,7 @@ namespace SQLDrv
                 case "plist":
                     try
                     {
-                        command = new SqlCommand($"insert pList (ID, Name, FirstName, MidName, status, Schedule, TabNumber, ChangeTime) values ({args[0]}, '{args[1]}', '{args[2]}', '{args[3]}', {args[4]}, {args[5]}, {args[6]}, {args[7]})", sqlConnection);
+                        command = new SqlCommand($"insert pList (ID, Name, FirstName, MidName, status, Schedule, TabNumber, ChangeTime) values ({args[0]}, '{args[1]}', '{args[2]}', '{args[3]}', {args[4]}, 1, {args[5]}, '{args[6]}')", sqlConnection);
                         command.ExecuteNonQuery();
                     }
                     catch (Exception exception)
@@ -685,12 +732,6 @@ namespace SQLDrv
             }
         }
 
-        
-
-
-
-
-
         //Функция обновления компонентов формы для кнопки "Обновить"
         private void upd_Click(object sender, EventArgs e)
         {
@@ -758,6 +799,124 @@ namespace SQLDrv
                 string DevItmID = command.ExecuteScalar().ToString();
                 command = new SqlCommand($"insert into DevItems values ({DevItmID}, {RScompID}, {RSIDBox.Text}, {Convert.ToInt32(RSAddressBox.Text) * 256 + i}, {DevItmID}, '{"ШС " + i + ", Прибор " + RSAddressBox.Text}', Null, 0, 9, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)", sqlConnection);
                 command.ExecuteNonQuery();
+            }
+        }
+
+        //Функции изменения окна с параметрами пароля
+        private void SelectTypePass_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ChangeSettingsList(PassSettingsList, sender);
+        }
+
+        private void ChangeSettingsList(object sender, object type)
+        {
+            SqlCommand command;
+            SqlDataReader read;
+            CheckedListBox box = (CheckedListBox)sender;
+            ComboBox typebox = (ComboBox)type;
+
+            PermBox.Items.Clear();
+            command = new SqlCommand("select name from Groups", Settings.sqlConnection);
+            read = command.ExecuteReader();
+            while (read.Read())
+                PermBox.Items.Add(read.GetValue(0).ToString());
+            read.Close();
+
+            TypeKeyBox.Enabled = false;
+
+            box.Items.Clear();
+            switch (typebox.SelectedIndex)
+            {
+                case 0:
+                    PasswordBox.Enabled = true;
+                    box.Items.Add("Менеджер сервера");
+                    box.Items.Add("Администратор базы данных");
+                    box.Items.Add("Оперативная задача");
+                    box.Items.Add("Учет рабочего времени");
+                    box.Items.Add("Генератор отчетов");
+                    box.Items.Add("Оболочка");
+                    box.Items.Add("Персональная карточка");
+
+                    break;
+                case 1:
+                    box.Items.Add("Хранить код ключа в ПКУ");
+                    break;
+                case 2 or 3 or 5 or 6:
+                    TypeKeyBox.Enabled = true;
+                    box.Items.Add("Упрощенный ввод");
+                    box.Items.Add("Хранить код ключа в приборах");
+                    box.Items.Add("Хранить код ключа в ПКУ");
+                    box.Items.Add("Ключ заблокирован");
+                    box.Items.Add("Стоп-лист");
+                    break;
+                case 4 or 8 or 9 or 10:
+                    box.Items.Add("Ключ заблокирован");
+                    break;
+
+            }
+
+        }
+
+
+        //Добавление пароля----------------
+        private void insPass_Click()
+        {
+            byte[] hex;
+
+
+            switch (SelectTypePassBox.SelectedIndex)
+            {
+                case 0 or 1:
+
+                    hex = Encoding.GetEncoding(0).GetBytes(PasswordBox.Text);
+
+                    for (int i = 1; i < hex.Length; i++)
+                    {
+                        hex[i] += hex[i - 1];
+                    }
+
+                    insertPass(codPass(hex), SelectTypePassBox.SelectedIndex + 1, 64);
+
+                    break;
+
+                case 2 or 3:
+                    hex = BitConverter.GetBytes(Convert.ToUInt64(PasswordBox.Text,16));
+                    insertPass(Encoding.GetEncoding(0).GetChars(new byte[] { 0x1 })[0].ToString() + codPass(hex), SelectTypePassBox.SelectedIndex + 1, 128);
+                    break;
+            }
+
+        }
+
+
+        private void insertPass(string pass, int typePass, int config)
+        {
+            if ((userlist.Items.Count > 0))
+            {
+                SqlCommand command;
+                command = new SqlCommand("select coalesce(max(ID) + 1, 1) from pMark", Settings.sqlConnection);
+                string passID = command.ExecuteScalar().ToString();
+                string name;
+                Random rand = new Random();
+                name = userlist.Text;
+
+                string owner = "";
+
+
+                owner = name.Remove(0, name.LastIndexOf("(") + 1);
+                owner = owner.Remove(owner.Length - 1, 1);
+
+                command = new SqlCommand("insert pMark values (@ID, @typeP, 0, @conf, @key, @key2, 0, @owner, @name, 1, 2, @ds, @de, 0, NULL, NULL, 1, NULL, NULL)", Settings.sqlConnection);
+                command.Parameters.AddWithValue("ID", passID);
+                command.Parameters.AddWithValue("typeP", typePass);
+                command.Parameters.AddWithValue("conf", config);
+                command.Parameters.AddWithValue("key", pass);
+                command.Parameters.AddWithValue("key2", "ю");
+                command.Parameters.AddWithValue("owner", owner);
+                command.Parameters.AddWithValue("name", name);
+                command.Parameters.AddWithValue("ds", "22.07.2020 0:00:00");
+                command.Parameters.AddWithValue("de", "22.07.2031 23:59:59");
+                //command.Parameters.AddWithValue("pc", "DEMO-12");
+                command.ExecuteScalar();
             }
         }
 

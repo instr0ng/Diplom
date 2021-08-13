@@ -80,8 +80,6 @@ namespace SQLDrv
             this.PermBox = new System.Windows.Forms.ComboBox();
             this.passDel = new System.Windows.Forms.Button();
             this.insPass = new System.Windows.Forms.Button();
-            this.label11 = new System.Windows.Forms.Label();
-            this.PasswordBox = new System.Windows.Forms.TextBox();
             this.userlist = new System.Windows.Forms.ComboBox();
             this.listBox1 = new System.Windows.Forms.ListBox();
             this.PassSettingsList = new System.Windows.Forms.CheckedListBox();
@@ -612,8 +610,6 @@ namespace SQLDrv
             this.pass.Controls.Add(this.PermBox);
             this.pass.Controls.Add(this.passDel);
             this.pass.Controls.Add(this.insPass);
-            this.pass.Controls.Add(this.label11);
-            this.pass.Controls.Add(this.PasswordBox);
             this.pass.Controls.Add(this.userlist);
             this.pass.Controls.Add(this.listBox1);
             this.pass.Controls.Add(this.PassSettingsList);
@@ -637,7 +633,7 @@ namespace SQLDrv
             // label12
             // 
             this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(369, 182);
+            this.label12.Location = new System.Drawing.Point(369, 135);
             this.label12.Name = "label12";
             this.label12.Size = new System.Drawing.Size(122, 15);
             this.label12.TabIndex = 15;
@@ -645,7 +641,7 @@ namespace SQLDrv
             // 
             // numPass
             // 
-            this.numPass.Location = new System.Drawing.Point(369, 200);
+            this.numPass.Location = new System.Drawing.Point(369, 153);
             this.numPass.Maximum = new decimal(new int[] {
             10000,
             0,
@@ -686,7 +682,7 @@ namespace SQLDrv
             "МАСТЕР",
             "Открывающий",
             "Закрывающий"});
-            this.TypeKeyBox.Location = new System.Drawing.Point(369, 152);
+            this.TypeKeyBox.Location = new System.Drawing.Point(369, 91);
             this.TypeKeyBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.TypeKeyBox.Name = "TypeKeyBox";
             this.TypeKeyBox.Size = new System.Drawing.Size(172, 23);
@@ -696,7 +692,7 @@ namespace SQLDrv
             // PermBox
             // 
             this.PermBox.FormattingEnabled = true;
-            this.PermBox.Location = new System.Drawing.Point(369, 127);
+            this.PermBox.Location = new System.Drawing.Point(369, 64);
             this.PermBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.PermBox.Name = "PermBox";
             this.PermBox.Size = new System.Drawing.Size(172, 23);
@@ -722,23 +718,6 @@ namespace SQLDrv
             this.insPass.Text = "Добавить";
             this.insPass.UseVisualStyleBackColor = true;
             this.insPass.Click += new System.EventHandler(this.insPass_Click);
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(369, 70);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(49, 15);
-            this.label11.TabIndex = 6;
-            this.label11.Text = "Пароль";
-            // 
-            // PasswordBox
-            // 
-            this.PasswordBox.Location = new System.Drawing.Point(369, 94);
-            this.PasswordBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.PasswordBox.Name = "PasswordBox";
-            this.PasswordBox.Size = new System.Drawing.Size(172, 23);
-            this.PasswordBox.TabIndex = 5;
             // 
             // userlist
             // 
@@ -788,10 +767,10 @@ namespace SQLDrv
             "доступ к вкладке \"Пароли\" (для АБД),",
             "хранить ключ\\карту\\пин-код в ПКУ,",
             "включение/выключение объектов"});
-            this.listBox1.Location = new System.Drawing.Point(611, 64);
+            this.listBox1.Location = new System.Drawing.Point(581, 6);
             this.listBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(221, 334);
+            this.listBox1.Size = new System.Drawing.Size(264, 334);
             this.listBox1.TabIndex = 2;
             this.listBox1.Visible = false;
             // 
@@ -907,8 +886,6 @@ namespace SQLDrv
         private System.Windows.Forms.ComboBox SelectTypePassBox;
         private System.Windows.Forms.ListBox listBox1;
         private System.Windows.Forms.ComboBox userlist;
-        private System.Windows.Forms.Label label11;
-        private System.Windows.Forms.TextBox PasswordBox;
         private System.Windows.Forms.Button passDel;
         private System.Windows.Forms.Button insPass;
         private System.Windows.Forms.ComboBox PermBox;

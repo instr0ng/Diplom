@@ -98,6 +98,13 @@ namespace SQLDrv
             this.ClID = new System.Windows.Forms.TextBox();
             this.ClTabID = new System.Windows.Forms.TextBox();
             this.PassGB = new System.Windows.Forms.TabPage();
+            this.PasswordBox = new System.Windows.Forms.TextBox();
+            this.TypeKeyBox = new System.Windows.Forms.ComboBox();
+            this.PermBox = new System.Windows.Forms.ComboBox();
+            this.label26 = new System.Windows.Forms.Label();
+            this.userlist = new System.Windows.Forms.ComboBox();
+            this.PassSettingsList = new System.Windows.Forms.CheckedListBox();
+            this.SelectTypePassBox = new System.Windows.Forms.ComboBox();
             this.Menu = new System.Windows.Forms.MenuStrip();
             this.BDSet = new System.Windows.Forms.ToolStripMenuItem();
             this.BDList = new System.Windows.Forms.ToolStripComboBox();
@@ -112,6 +119,7 @@ namespace SQLDrv
             this.PortGB.SuspendLayout();
             this.RSGB.SuspendLayout();
             this.CrercGB.SuspendLayout();
+            this.PassGB.SuspendLayout();
             this.Menu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -918,12 +926,107 @@ namespace SQLDrv
             // 
             // PassGB
             // 
+            this.PassGB.Controls.Add(this.PasswordBox);
+            this.PassGB.Controls.Add(this.TypeKeyBox);
+            this.PassGB.Controls.Add(this.PermBox);
+            this.PassGB.Controls.Add(this.label26);
+            this.PassGB.Controls.Add(this.userlist);
+            this.PassGB.Controls.Add(this.PassSettingsList);
+            this.PassGB.Controls.Add(this.SelectTypePassBox);
             this.PassGB.Location = new System.Drawing.Point(4, 24);
             this.PassGB.Name = "PassGB";
             this.PassGB.Size = new System.Drawing.Size(317, 332);
             this.PassGB.TabIndex = 4;
             this.PassGB.Text = "Пароли";
             this.PassGB.UseVisualStyleBackColor = true;
+            // 
+            // PasswordBox
+            // 
+            this.PasswordBox.Location = new System.Drawing.Point(199, 80);
+            this.PasswordBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.PasswordBox.Name = "PasswordBox";
+            this.PasswordBox.Size = new System.Drawing.Size(115, 23);
+            this.PasswordBox.TabIndex = 19;
+            // 
+            // TypeKeyBox
+            // 
+            this.TypeKeyBox.Enabled = false;
+            this.TypeKeyBox.FormattingEnabled = true;
+            this.TypeKeyBox.Items.AddRange(new object[] {
+            "Основной",
+            "Код принуждения",
+            "МАСТЕР",
+            "Открывающий",
+            "Закрывающий"});
+            this.TypeKeyBox.Location = new System.Drawing.Point(199, 138);
+            this.TypeKeyBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.TypeKeyBox.Name = "TypeKeyBox";
+            this.TypeKeyBox.Size = new System.Drawing.Size(115, 23);
+            this.TypeKeyBox.TabIndex = 22;
+            this.TypeKeyBox.Text = "Тип ключа";
+            // 
+            // PermBox
+            // 
+            this.PermBox.FormattingEnabled = true;
+            this.PermBox.Location = new System.Drawing.Point(199, 113);
+            this.PermBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.PermBox.Name = "PermBox";
+            this.PermBox.Size = new System.Drawing.Size(115, 23);
+            this.PermBox.TabIndex = 21;
+            this.PermBox.Text = "Полномочия";
+            // 
+            // label26
+            // 
+            this.label26.AutoSize = true;
+            this.label26.Location = new System.Drawing.Point(199, 56);
+            this.label26.Name = "label26";
+            this.label26.Size = new System.Drawing.Size(49, 15);
+            this.label26.TabIndex = 20;
+            this.label26.Text = "Пароль";
+            // 
+            // userlist
+            // 
+            this.userlist.FormattingEnabled = true;
+            this.userlist.Location = new System.Drawing.Point(3, 2);
+            this.userlist.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.userlist.Name = "userlist";
+            this.userlist.Size = new System.Drawing.Size(132, 23);
+            this.userlist.TabIndex = 18;
+            this.userlist.Tag = "PASS";
+            this.userlist.Text = "Сотрудник";
+            // 
+            // PassSettingsList
+            // 
+            this.PassSettingsList.CheckOnClick = true;
+            this.PassSettingsList.FormattingEnabled = true;
+            this.PassSettingsList.Location = new System.Drawing.Point(3, 56);
+            this.PassSettingsList.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.PassSettingsList.Name = "PassSettingsList";
+            this.PassSettingsList.Size = new System.Drawing.Size(190, 274);
+            this.PassSettingsList.TabIndex = 17;
+            // 
+            // SelectTypePassBox
+            // 
+            this.SelectTypePassBox.FormattingEnabled = true;
+            this.SelectTypePassBox.Items.AddRange(new object[] {
+            "Пароль для программ",
+            "PIN-код",
+            "Брелок TouchMemory",
+            "Proximity карта",
+            "Отпечаток пальца BIOAccess",
+            "Автомобильный номер",
+            "PIN-код2",
+            "Удаленное управление",
+            "Шаблон лица BIOAccess SB101",
+            "Шаблон ладони BIOAccess PA10",
+            "Отпечаток пальца BIOAccess W2"});
+            this.SelectTypePassBox.Location = new System.Drawing.Point(3, 29);
+            this.SelectTypePassBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
+            this.SelectTypePassBox.Name = "SelectTypePassBox";
+            this.SelectTypePassBox.Size = new System.Drawing.Size(132, 23);
+            this.SelectTypePassBox.TabIndex = 16;
+            this.SelectTypePassBox.Text = "Тип ключа";
+            this.SelectTypePassBox.SelectedIndexChanged += new System.EventHandler(this.SelectTypePass_SelectedIndexChanged);
             // 
             // Menu
             // 
@@ -1011,6 +1114,8 @@ namespace SQLDrv
             this.RSGB.PerformLayout();
             this.CrercGB.ResumeLayout(false);
             this.CrercGB.PerformLayout();
+            this.PassGB.ResumeLayout(false);
+            this.PassGB.PerformLayout();
             this.Menu.ResumeLayout(false);
             this.Menu.PerformLayout();
             this.ResumeLayout(false);
@@ -1097,5 +1202,12 @@ namespace SQLDrv
         private System.Windows.Forms.Label label22;
         private System.Windows.Forms.Label label21;
         private System.Windows.Forms.TabPage PassGB;
+        private System.Windows.Forms.ComboBox TypeKeyBox;
+        private System.Windows.Forms.ComboBox PermBox;
+        private System.Windows.Forms.Label label26;
+        private System.Windows.Forms.TextBox PasswordBox;
+        private System.Windows.Forms.ComboBox userlist;
+        private System.Windows.Forms.CheckedListBox PassSettingsList;
+        private System.Windows.Forms.ComboBox SelectTypePassBox;
     }
 }
