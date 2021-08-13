@@ -122,7 +122,7 @@ namespace SQLDrv
 
                 case "comps":
 
-                    if ((CompIDBox.Text == "") || (CompIPBox.Text == ""))
+                    if ((CompIDBox.Text == "") || (CompIPBox.Text == "") || (ComPCIDBox.Text == ""))
                     {
                         MessageBox.Show("Заполнены не все обязательные поля");
                         break;
@@ -434,6 +434,8 @@ namespace SQLDrv
                         UpdTextBoxes(ComAutoID, ComIDBox);
                         UpdTextBoxes(ComAutoIP, ComIPBox);
                         UpdComboBoxes(ComPCIDBox, ComNumBox, ComAdaptorBox, ComTypeBox, ComBaudBox);
+                        UpdTextBoxes(ComAutoID, ComIDBox);
+                        UpdTextBoxes(ComAutoIP, ComIPBox);
                     }
                     break;
                 case 2:
