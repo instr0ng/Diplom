@@ -122,7 +122,7 @@ namespace SQLDrv
 
                 case "comps":
 
-                    if ((CompIDBox.Text == "") || (CompIPBox.Text == ""))
+                    if ((CompIDBox.Text == "") || (CompIPBox.Text == "") || (ComPCIDBox.Text == ""))
                     {
                         MessageBox.Show("Заполнены не все обязательные поля");
                         break;
@@ -181,7 +181,22 @@ namespace SQLDrv
                     UpdTextBoxes(RSAutoID, RSIDBox);
                     UpdComboBoxes(RSPCBox, RSPortBox, RSParentBox);
                     break;
-                   
+
+                case "plist":
+
+                    if ((ClID.Text == "") || (ClTabID.Text == "") || (ClFirstNameBox.Text == "") || (ClNameBox.Text == "") || (ClMidNameBox.Text == "") || (ClStatusBox.Text == ""))
+                    {
+                        MessageBox.Show("Заполнены не все обязательные поля");
+                        break;
+                    }
+
+                    command = new SqlCommand($"select id from comps where name = '{ComPCIDBox.Text}'", sqlConnection);
+                    compID = command.ExecuteScalar().ToString();
+
+                    Insert("plist", ClID.Text, ClNameBox.Text, ClFirstNameBox.Text, ClMidNameBox.Text, (ClStatusBox.SelectedIndex + 1).ToString(), ClTabID.Text, DateTime.Now.ToString());
+                    UpdTextBoxes(ComAutoID, ComIDBox);
+                    break;
+
             }
 
             // Обновление таблицы справа
@@ -258,6 +273,21 @@ namespace SQLDrv
                         if (text.AccessibleName == "RSIP")
                         {
                             text.Text = "127.0.0.1";
+                            text.Enabled = false;
+                        }
+                        break;
+                    case "CL":
+                        if (text.AccessibleName == "CLID")
+                        {
+                            command = new SqlCommand("select coalesce(max(ID)+1, 1) from plist", sqlConnection);
+                            text.Text = command.ExecuteScalar().ToString();
+                            text.Enabled = false;
+                        }
+
+                        if (text.AccessibleName == "CLTABID")
+                        {
+                            command = new SqlCommand("select coalesce(max(TabNumber)+1, 1) from plist", sqlConnection);
+                            text.Text = command.ExecuteScalar().ToString();
                             text.Enabled = false;
                         }
                         break;
@@ -434,6 +464,8 @@ namespace SQLDrv
                         UpdTextBoxes(ComAutoID, ComIDBox);
                         UpdTextBoxes(ComAutoIP, ComIPBox);
                         UpdComboBoxes(ComPCIDBox, ComNumBox, ComAdaptorBox, ComTypeBox, ComBaudBox);
+                        UpdTextBoxes(ComAutoID, ComIDBox);
+                        UpdTextBoxes(ComAutoIP, ComIPBox);
                     }
                     break;
                 case 2:
@@ -444,6 +476,16 @@ namespace SQLDrv
                         UpdTextBoxes(RSAutoIP, RSIPBox);
                         UpdTextBoxes(AutoAddr, RSAddressBox);
                         UpdComboBoxes(RSInterfaceBox, RSPCBox, RSPortBox, RSParentBox, RSTypeBox);
+                    }
+                    break;
+                case 3:
+                    currtab = "plist";
+                    if (sqlConnection.State == ConnectionState.Open)
+                    {
+                        UpdTextBoxes(ClAutoID, ClID);
+                        UpdTextBoxes(ClAutoTabID, ClTabID);
+                        UpdTextBoxes(AutoAddr, RSAddressBox);
+                        UpdComboBoxes(ClStatusBox);
                     }
                     break;
             }
@@ -473,6 +515,7 @@ namespace SQLDrv
                                                                 // ComPorts - ID, ComputerID, Number, Adaptor, PrAdaptor, PortType, ProtocolType, IP, Baud
                                                                 // RSLines - ID, GIndex, ComPortID, PKUID, GLineNo, DeviceInterface, Name, type
                                                                 // DevItems - ID, ComputerID, DeviceID, Address, Gindex, ItemType, Name
+                                                                // pList - ID, Name, FirstName, MidName, status, Schedule, TabNumber, ChangeTime
         {
             if (args.Length == 0)
                 return;
@@ -490,7 +533,8 @@ namespace SQLDrv
                     {
                         MessageBox.Show("Введены неккоректные или повторяющиеся данные." + '\n' + '\n' + exception.Message);
                     }
-            break;
+                    break;
+
                 case "comports":
                     try
                     {
@@ -520,6 +564,18 @@ namespace SQLDrv
                     try
                     {
                         command = new SqlCommand($"insert into devitems(ID, ComputerID, DeviceID, Address, Gindex, ItemType, Name) values({args[0]}, {args[1]}, {args[2]}, {args[3]}, {args[4]}, {args[5]}, '{args[6]}') ", sqlConnection);
+                        command.ExecuteNonQuery();
+                    }
+                    catch (Exception exception)
+                    {
+                        MessageBox.Show("Введены неккоректные или повторяющиеся данные" + '\n' + '\n' + exception.Message);
+                    }
+                    break;
+
+                case "plist":
+                    try
+                    {
+                        command = new SqlCommand($"insert pList (ID, Name, FirstName, MidName, status, Schedule, TabNumber, ChangeTime) values ({args[0]}, '{args[1]}', '{args[2]}', '{args[3]}', {args[4]}, {args[5]}, {args[6]}, {args[7]})", sqlConnection);
                         command.ExecuteNonQuery();
                     }
                     catch (Exception exception)
@@ -574,6 +630,16 @@ namespace SQLDrv
             UpdTextBoxes(AutoAddr, RSAddressBox);
         }
 
+        private void ClAutoID_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdTextBoxes(ClAutoID, ClID);
+        }
+
+        private void ClAutoTabID_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdTextBoxes(ClAutoTabID, ClTabID);
+        }
+
         private void RSPCBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             ComboBox box = (ComboBox)sender;
@@ -620,6 +686,9 @@ namespace SQLDrv
         }
 
         
+
+
+
 
 
         //Функция обновления компонентов формы для кнопки "Обновить"
@@ -764,6 +833,19 @@ namespace SQLDrv
                                 command.ExecuteNonQuery();
 
                                 command = new SqlCommand($"delete from RSLines where ID = {DelID[i]}", sqlConnection);
+                                command.ExecuteNonQuery();
+                            }
+                        }
+                        break;
+                    case 3:
+                        for (i = 0; i < count; i++)
+                        {
+                            if (DelID[i] != null)
+                            {
+                                command = new SqlCommand($"delete from pmark where owner = {DelID[i]}", sqlConnection);
+                                command.ExecuteNonQuery();
+
+                                command = new SqlCommand($"delete from plist where id = {DelID[i]}", sqlConnection);
                                 command.ExecuteNonQuery();
                             }
                         }

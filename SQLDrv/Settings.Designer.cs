@@ -82,6 +82,22 @@ namespace SQLDrv
             this.PortGB = new System.Windows.Forms.TabPage();
             this.RSGB = new System.Windows.Forms.TabPage();
             this.AutoAddr = new System.Windows.Forms.CheckBox();
+            this.CrercGB = new System.Windows.Forms.TabPage();
+            this.label24 = new System.Windows.Forms.Label();
+            this.label23 = new System.Windows.Forms.Label();
+            this.label22 = new System.Windows.Forms.Label();
+            this.label21 = new System.Windows.Forms.Label();
+            this.label20 = new System.Windows.Forms.Label();
+            this.label19 = new System.Windows.Forms.Label();
+            this.ClStatusBox = new System.Windows.Forms.ComboBox();
+            this.ClMidNameBox = new System.Windows.Forms.TextBox();
+            this.ClNameBox = new System.Windows.Forms.TextBox();
+            this.ClFirstNameBox = new System.Windows.Forms.TextBox();
+            this.ClAutoTabID = new System.Windows.Forms.CheckBox();
+            this.ClAutoID = new System.Windows.Forms.CheckBox();
+            this.ClID = new System.Windows.Forms.TextBox();
+            this.ClTabID = new System.Windows.Forms.TextBox();
+            this.PassGB = new System.Windows.Forms.TabPage();
             this.Menu = new System.Windows.Forms.MenuStrip();
             this.BDSet = new System.Windows.Forms.ToolStripMenuItem();
             this.BDList = new System.Windows.Forms.ToolStripComboBox();
@@ -95,6 +111,7 @@ namespace SQLDrv
             this.CompGB.SuspendLayout();
             this.PortGB.SuspendLayout();
             this.RSGB.SuspendLayout();
+            this.CrercGB.SuspendLayout();
             this.Menu.SuspendLayout();
             this.SuspendLayout();
             // 
@@ -641,6 +658,8 @@ namespace SQLDrv
             this.TabSelect.Controls.Add(this.CompGB);
             this.TabSelect.Controls.Add(this.PortGB);
             this.TabSelect.Controls.Add(this.RSGB);
+            this.TabSelect.Controls.Add(this.CrercGB);
+            this.TabSelect.Controls.Add(this.PassGB);
             this.TabSelect.Enabled = false;
             this.TabSelect.Location = new System.Drawing.Point(12, 34);
             this.TabSelect.Name = "TabSelect";
@@ -738,6 +757,174 @@ namespace SQLDrv
             this.AutoAddr.UseVisualStyleBackColor = true;
             this.AutoAddr.CheckedChanged += new System.EventHandler(this.AutoAddr_CheckedChanged);
             // 
+            // CrercGB
+            // 
+            this.CrercGB.Controls.Add(this.label24);
+            this.CrercGB.Controls.Add(this.label23);
+            this.CrercGB.Controls.Add(this.label22);
+            this.CrercGB.Controls.Add(this.label21);
+            this.CrercGB.Controls.Add(this.label20);
+            this.CrercGB.Controls.Add(this.label19);
+            this.CrercGB.Controls.Add(this.ClStatusBox);
+            this.CrercGB.Controls.Add(this.ClMidNameBox);
+            this.CrercGB.Controls.Add(this.ClNameBox);
+            this.CrercGB.Controls.Add(this.ClFirstNameBox);
+            this.CrercGB.Controls.Add(this.ClAutoTabID);
+            this.CrercGB.Controls.Add(this.ClAutoID);
+            this.CrercGB.Controls.Add(this.ClID);
+            this.CrercGB.Controls.Add(this.ClTabID);
+            this.CrercGB.Location = new System.Drawing.Point(4, 24);
+            this.CrercGB.Name = "CrercGB";
+            this.CrercGB.Size = new System.Drawing.Size(317, 332);
+            this.CrercGB.TabIndex = 3;
+            this.CrercGB.Tag = "";
+            this.CrercGB.Text = "Сотрудники";
+            this.CrercGB.UseVisualStyleBackColor = true;
+            // 
+            // label24
+            // 
+            this.label24.AutoSize = true;
+            this.label24.Location = new System.Drawing.Point(24, 161);
+            this.label24.Name = "label24";
+            this.label24.Size = new System.Drawing.Size(43, 15);
+            this.label24.TabIndex = 13;
+            this.label24.Text = "Статус";
+            // 
+            // label23
+            // 
+            this.label23.AutoSize = true;
+            this.label23.Location = new System.Drawing.Point(9, 132);
+            this.label23.Name = "label23";
+            this.label23.Size = new System.Drawing.Size(58, 15);
+            this.label23.TabIndex = 12;
+            this.label23.Text = "Отчество";
+            // 
+            // label22
+            // 
+            this.label22.AutoSize = true;
+            this.label22.Location = new System.Drawing.Point(36, 103);
+            this.label22.Name = "label22";
+            this.label22.Size = new System.Drawing.Size(31, 15);
+            this.label22.TabIndex = 11;
+            this.label22.Text = "Имя";
+            // 
+            // label21
+            // 
+            this.label21.AutoSize = true;
+            this.label21.Location = new System.Drawing.Point(9, 74);
+            this.label21.Name = "label21";
+            this.label21.Size = new System.Drawing.Size(58, 15);
+            this.label21.TabIndex = 10;
+            this.label21.Text = "Фамилия";
+            // 
+            // label20
+            // 
+            this.label20.AutoSize = true;
+            this.label20.Location = new System.Drawing.Point(28, 45);
+            this.label20.Name = "label20";
+            this.label20.Size = new System.Drawing.Size(39, 15);
+            this.label20.TabIndex = 9;
+            this.label20.Text = "Tab ID";
+            // 
+            // label19
+            // 
+            this.label19.AutoSize = true;
+            this.label19.Location = new System.Drawing.Point(49, 16);
+            this.label19.Name = "label19";
+            this.label19.Size = new System.Drawing.Size(18, 15);
+            this.label19.TabIndex = 8;
+            this.label19.Text = "ID";
+            // 
+            // ClStatusBox
+            // 
+            this.ClStatusBox.FormattingEnabled = true;
+            this.ClStatusBox.Items.AddRange(new object[] {
+            "Владелец",
+            "Администратор",
+            "Дежурный офицер",
+            "Дежурный оператор",
+            "Хозорган",
+            "Служащий",
+            "Оператор бюро пропусков"});
+            this.ClStatusBox.Location = new System.Drawing.Point(73, 158);
+            this.ClStatusBox.Name = "ClStatusBox";
+            this.ClStatusBox.Size = new System.Drawing.Size(121, 23);
+            this.ClStatusBox.TabIndex = 7;
+            // 
+            // ClMidNameBox
+            // 
+            this.ClMidNameBox.Location = new System.Drawing.Point(73, 129);
+            this.ClMidNameBox.Name = "ClMidNameBox";
+            this.ClMidNameBox.Size = new System.Drawing.Size(100, 23);
+            this.ClMidNameBox.TabIndex = 6;
+            // 
+            // ClNameBox
+            // 
+            this.ClNameBox.Location = new System.Drawing.Point(73, 100);
+            this.ClNameBox.Name = "ClNameBox";
+            this.ClNameBox.Size = new System.Drawing.Size(100, 23);
+            this.ClNameBox.TabIndex = 5;
+            // 
+            // ClFirstNameBox
+            // 
+            this.ClFirstNameBox.Location = new System.Drawing.Point(73, 71);
+            this.ClFirstNameBox.Name = "ClFirstNameBox";
+            this.ClFirstNameBox.Size = new System.Drawing.Size(100, 23);
+            this.ClFirstNameBox.TabIndex = 4;
+            // 
+            // ClAutoTabID
+            // 
+            this.ClAutoTabID.AccessibleName = "CLTABID";
+            this.ClAutoTabID.AutoSize = true;
+            this.ClAutoTabID.Location = new System.Drawing.Point(113, 44);
+            this.ClAutoTabID.Name = "ClAutoTabID";
+            this.ClAutoTabID.Size = new System.Drawing.Size(52, 19);
+            this.ClAutoTabID.TabIndex = 3;
+            this.ClAutoTabID.Tag = "CL";
+            this.ClAutoTabID.Text = "Авто";
+            this.ClAutoTabID.UseVisualStyleBackColor = true;
+            this.ClAutoTabID.CheckedChanged += new System.EventHandler(this.ClAutoTabID_CheckedChanged);
+            // 
+            // ClAutoID
+            // 
+            this.ClAutoID.AccessibleName = "CLID";
+            this.ClAutoID.AutoSize = true;
+            this.ClAutoID.Location = new System.Drawing.Point(113, 15);
+            this.ClAutoID.Name = "ClAutoID";
+            this.ClAutoID.Size = new System.Drawing.Size(52, 19);
+            this.ClAutoID.TabIndex = 2;
+            this.ClAutoID.Tag = "CL";
+            this.ClAutoID.Text = "Авто";
+            this.ClAutoID.UseVisualStyleBackColor = true;
+            this.ClAutoID.CheckedChanged += new System.EventHandler(this.ClAutoID_CheckedChanged);
+            // 
+            // ClID
+            // 
+            this.ClID.AccessibleName = "CLID";
+            this.ClID.Location = new System.Drawing.Point(73, 13);
+            this.ClID.Name = "ClID";
+            this.ClID.Size = new System.Drawing.Size(34, 23);
+            this.ClID.TabIndex = 1;
+            this.ClID.Tag = "CL";
+            // 
+            // ClTabID
+            // 
+            this.ClTabID.AccessibleName = "CLTABID";
+            this.ClTabID.Location = new System.Drawing.Point(73, 42);
+            this.ClTabID.Name = "ClTabID";
+            this.ClTabID.Size = new System.Drawing.Size(34, 23);
+            this.ClTabID.TabIndex = 0;
+            this.ClTabID.Tag = "CL";
+            // 
+            // PassGB
+            // 
+            this.PassGB.Location = new System.Drawing.Point(4, 24);
+            this.PassGB.Name = "PassGB";
+            this.PassGB.Size = new System.Drawing.Size(317, 332);
+            this.PassGB.TabIndex = 4;
+            this.PassGB.Text = "Пароли";
+            this.PassGB.UseVisualStyleBackColor = true;
+            // 
             // Menu
             // 
             this.Menu.ImageScalingSize = new System.Drawing.Size(20, 20);
@@ -822,6 +1009,8 @@ namespace SQLDrv
             this.PortGB.PerformLayout();
             this.RSGB.ResumeLayout(false);
             this.RSGB.PerformLayout();
+            this.CrercGB.ResumeLayout(false);
+            this.CrercGB.PerformLayout();
             this.Menu.ResumeLayout(false);
             this.Menu.PerformLayout();
             this.ResumeLayout(false);
@@ -892,5 +1081,21 @@ namespace SQLDrv
         private System.Windows.Forms.Button TestBT;
         private System.Windows.Forms.ToolStripMenuItem upd;
         private System.Windows.Forms.CheckBox AutoAddr;
+        private System.Windows.Forms.TabPage CrercGB;
+        private System.Windows.Forms.TextBox ClTabID;
+        private System.Windows.Forms.ComboBox ClStatusBox;
+        private System.Windows.Forms.TextBox ClMidNameBox;
+        private System.Windows.Forms.TextBox ClNameBox;
+        private System.Windows.Forms.TextBox ClFirstNameBox;
+        private System.Windows.Forms.CheckBox ClAutoTabID;
+        private System.Windows.Forms.CheckBox ClAutoID;
+        private System.Windows.Forms.TextBox ClID;
+        private System.Windows.Forms.Label label20;
+        private System.Windows.Forms.Label label19;
+        private System.Windows.Forms.Label label24;
+        private System.Windows.Forms.Label label23;
+        private System.Windows.Forms.Label label22;
+        private System.Windows.Forms.Label label21;
+        private System.Windows.Forms.TabPage PassGB;
     }
 }
