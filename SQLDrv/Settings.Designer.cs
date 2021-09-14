@@ -98,12 +98,12 @@ namespace SQLDrv
             this.ClID = new System.Windows.Forms.TextBox();
             this.ClTabID = new System.Windows.Forms.TextBox();
             this.PassGB = new System.Windows.Forms.TabPage();
+            this.Tree = new System.Windows.Forms.TreeView();
             this.PasswordBox = new System.Windows.Forms.TextBox();
             this.TypeKeyBox = new System.Windows.Forms.ComboBox();
             this.PermBox = new System.Windows.Forms.ComboBox();
             this.label26 = new System.Windows.Forms.Label();
             this.userlist = new System.Windows.Forms.ComboBox();
-            this.PassSettingsList = new System.Windows.Forms.CheckedListBox();
             this.SelectTypePassBox = new System.Windows.Forms.ComboBox();
             this.Menu = new System.Windows.Forms.MenuStrip();
             this.BDSet = new System.Windows.Forms.ToolStripMenuItem();
@@ -926,12 +926,12 @@ namespace SQLDrv
             // 
             // PassGB
             // 
+            this.PassGB.Controls.Add(this.Tree);
             this.PassGB.Controls.Add(this.PasswordBox);
             this.PassGB.Controls.Add(this.TypeKeyBox);
             this.PassGB.Controls.Add(this.PermBox);
             this.PassGB.Controls.Add(this.label26);
             this.PassGB.Controls.Add(this.userlist);
-            this.PassGB.Controls.Add(this.PassSettingsList);
             this.PassGB.Controls.Add(this.SelectTypePassBox);
             this.PassGB.Location = new System.Drawing.Point(4, 24);
             this.PassGB.Name = "PassGB";
@@ -939,6 +939,16 @@ namespace SQLDrv
             this.PassGB.TabIndex = 4;
             this.PassGB.Text = "Пароли";
             this.PassGB.UseVisualStyleBackColor = true;
+            // 
+            // Tree
+            // 
+            this.Tree.CheckBoxes = true;
+            this.Tree.Cursor = System.Windows.Forms.Cursors.Default;
+            this.Tree.Location = new System.Drawing.Point(3, 57);
+            this.Tree.Name = "Tree";
+            this.Tree.Size = new System.Drawing.Size(188, 272);
+            this.Tree.TabIndex = 23;
+            this.Tree.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.Tree_AfterCheck);
             // 
             // PasswordBox
             // 
@@ -994,16 +1004,6 @@ namespace SQLDrv
             this.userlist.TabIndex = 18;
             this.userlist.Tag = "PASS";
             this.userlist.Text = "Сотрудник";
-            // 
-            // PassSettingsList
-            // 
-            this.PassSettingsList.CheckOnClick = true;
-            this.PassSettingsList.FormattingEnabled = true;
-            this.PassSettingsList.Location = new System.Drawing.Point(3, 56);
-            this.PassSettingsList.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.PassSettingsList.Name = "PassSettingsList";
-            this.PassSettingsList.Size = new System.Drawing.Size(190, 274);
-            this.PassSettingsList.TabIndex = 17;
             // 
             // SelectTypePassBox
             // 
@@ -1207,7 +1207,7 @@ namespace SQLDrv
         private System.Windows.Forms.Label label26;
         private System.Windows.Forms.TextBox PasswordBox;
         private System.Windows.Forms.ComboBox userlist;
-        private System.Windows.Forms.CheckedListBox PassSettingsList;
         private System.Windows.Forms.ComboBox SelectTypePassBox;
+        private System.Windows.Forms.TreeView Tree;
     }
 }

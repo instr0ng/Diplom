@@ -72,6 +72,8 @@ namespace SQLDrv
             this.userINS = new System.Windows.Forms.Button();
             this.userNum = new System.Windows.Forms.NumericUpDown();
             this.pass = new System.Windows.Forms.TabPage();
+            this.label11 = new System.Windows.Forms.Label();
+            this.Tree = new System.Windows.Forms.TreeView();
             this.passPB = new System.Windows.Forms.ProgressBar();
             this.label12 = new System.Windows.Forms.Label();
             this.numPass = new System.Windows.Forms.NumericUpDown();
@@ -81,8 +83,6 @@ namespace SQLDrv
             this.passDel = new System.Windows.Forms.Button();
             this.insPass = new System.Windows.Forms.Button();
             this.userlist = new System.Windows.Forms.ComboBox();
-            this.listBox1 = new System.Windows.Forms.ListBox();
-            this.PassSettingsList = new System.Windows.Forms.CheckedListBox();
             this.SelectTypePassBox = new System.Windows.Forms.ComboBox();
             this.tab.SuspendLayout();
             this.PCtP.SuspendLayout();
@@ -602,6 +602,8 @@ namespace SQLDrv
             // 
             // pass
             // 
+            this.pass.Controls.Add(this.label11);
+            this.pass.Controls.Add(this.Tree);
             this.pass.Controls.Add(this.passPB);
             this.pass.Controls.Add(this.label12);
             this.pass.Controls.Add(this.numPass);
@@ -611,8 +613,6 @@ namespace SQLDrv
             this.pass.Controls.Add(this.passDel);
             this.pass.Controls.Add(this.insPass);
             this.pass.Controls.Add(this.userlist);
-            this.pass.Controls.Add(this.listBox1);
-            this.pass.Controls.Add(this.PassSettingsList);
             this.pass.Controls.Add(this.SelectTypePassBox);
             this.pass.Location = new System.Drawing.Point(4, 24);
             this.pass.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
@@ -621,6 +621,25 @@ namespace SQLDrv
             this.pass.TabIndex = 2;
             this.pass.Text = "Пароли";
             this.pass.UseVisualStyleBackColor = true;
+            // 
+            // label11
+            // 
+            this.label11.AutoSize = true;
+            this.label11.Location = new System.Drawing.Point(369, 89);
+            this.label11.Name = "label11";
+            this.label11.Size = new System.Drawing.Size(66, 15);
+            this.label11.TabIndex = 18;
+            this.label11.Text = "Тип ключа";
+            // 
+            // Tree
+            // 
+            this.Tree.CheckBoxes = true;
+            this.Tree.Cursor = System.Windows.Forms.Cursors.Default;
+            this.Tree.Location = new System.Drawing.Point(8, 75);
+            this.Tree.Name = "Tree";
+            this.Tree.Size = new System.Drawing.Size(323, 329);
+            this.Tree.TabIndex = 17;
+            this.Tree.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.Tree_AfterCheck);
             // 
             // passPB
             // 
@@ -682,12 +701,12 @@ namespace SQLDrv
             "МАСТЕР",
             "Открывающий",
             "Закрывающий"});
-            this.TypeKeyBox.Location = new System.Drawing.Point(369, 91);
+            this.TypeKeyBox.Location = new System.Drawing.Point(369, 106);
             this.TypeKeyBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
             this.TypeKeyBox.Name = "TypeKeyBox";
             this.TypeKeyBox.Size = new System.Drawing.Size(172, 23);
             this.TypeKeyBox.TabIndex = 11;
-            this.TypeKeyBox.Text = "Тип ключа";
+            this.TypeKeyBox.Text = "Основной";
             // 
             // PermBox
             // 
@@ -728,61 +747,6 @@ namespace SQLDrv
             this.userlist.Size = new System.Drawing.Size(202, 23);
             this.userlist.TabIndex = 4;
             this.userlist.Text = "Сотрудник";
-            // 
-            // listBox1
-            // 
-            this.listBox1.FormattingEnabled = true;
-            this.listBox1.ItemHeight = 15;
-            this.listBox1.Items.AddRange(new object[] {
-            "доступ к Администратору Базы данных,",
-            "доступ к Оперативной задаче,",
-            "права на управление особо охраняемыми разделами (для ОЗ),",
-            "права на управление отдельными зонами (для ОЗ),",
-            "доступ к Менеджеру Центрального Сервера,",
-            "права на обработку тревог (для ОЗ),",
-            "признак зашифрованности идентификатора,",
-            "признак локального ключа\\карты\\отпечатка\\пин-кода,",
-            "доступ к вкладке «Персонал» (для АБД),",
-            "доступ к охранно-пожарной системе",
-            "доступ к Генератору отчета,",
-            "доступ к Учету рабочего времени,",
-            "(резерв),",
-            "права на управление системой пожаротушения (для ОЗ),",
-            "(резерв),",
-            "идентификатор заблокирован,",
-            "признак идентификатора с дополнительным кодом,",
-            "признак идентификатора с дополнительным кодом,",
-            "тип ключа\\карты: Простой,",
-            "тип ключа\\карты: МАСТЕР,",
-            "тип ключа\\карты: Открывающий,",
-            "тип ключа\\карты: Закрывающий,",
-            "доступ к вкладке «Гости» (для АБД),",
-            "доступ к вкладке «Доступ» (для АБД),",
-            "доступ к вкладке «Сценарии управления» (для АБД),",
-            "признак ключа\\карты “стоп лист”",
-            "доступ к вкладке \"Дерево управления\" (для АБД),",
-            "доступ к вкладке \"Расписание\" (для АБД),",
-            "доступ к вкладке \"Окна времени\" (для АБД),",
-            "доступ к вкладке \"Уровни доступа\" (для АБД),",
-            "доступ к вкладке \"Пароли\" (для АБД),",
-            "хранить ключ\\карту\\пин-код в ПКУ,",
-            "включение/выключение объектов"});
-            this.listBox1.Location = new System.Drawing.Point(581, 6);
-            this.listBox1.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.listBox1.Name = "listBox1";
-            this.listBox1.Size = new System.Drawing.Size(264, 334);
-            this.listBox1.TabIndex = 2;
-            this.listBox1.Visible = false;
-            // 
-            // PassSettingsList
-            // 
-            this.PassSettingsList.CheckOnClick = true;
-            this.PassSettingsList.FormattingEnabled = true;
-            this.PassSettingsList.Location = new System.Drawing.Point(7, 64);
-            this.PassSettingsList.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.PassSettingsList.Name = "PassSettingsList";
-            this.PassSettingsList.Size = new System.Drawing.Size(345, 328);
-            this.PassSettingsList.TabIndex = 1;
             // 
             // SelectTypePassBox
             // 
@@ -882,9 +846,7 @@ namespace SQLDrv
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.ProgressBar RSPB;
         private System.Windows.Forms.TabPage pass;
-        private System.Windows.Forms.CheckedListBox PassSettingsList;
         private System.Windows.Forms.ComboBox SelectTypePassBox;
-        private System.Windows.Forms.ListBox listBox1;
         private System.Windows.Forms.ComboBox userlist;
         private System.Windows.Forms.Button passDel;
         private System.Windows.Forms.Button insPass;
@@ -899,5 +861,7 @@ namespace SQLDrv
         private System.Windows.Forms.NumericUpDown numPass;
         private System.Windows.Forms.ProgressBar userPB;
         private System.Windows.Forms.ProgressBar passPB;
+        private System.Windows.Forms.TreeView Tree;
+        private System.Windows.Forms.Label label11;
     }
 }

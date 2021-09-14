@@ -145,7 +145,7 @@ namespace SQLDrv
         };
         ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
         /////Таблицы 
-        
+
 
 
         //Функция кодирования по CRC8
@@ -163,7 +163,7 @@ namespace SQLDrv
         {
             char[] ascii;
             ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x1 });
-            string nstr="";
+            string nstr = "";
             for (int i = 0; i < pass.Length; i++)
             {
                 switch (pass[i])
@@ -208,6 +208,106 @@ namespace SQLDrv
         }
 
 
+        //Функция подсчёта конфига
+        private int[] passConfig()
+        {
+            int[] config = new int[2];
+            if (SelectTypePassBox.SelectedIndex == 0 || SelectTypePassBox.SelectedIndex == 1)
+            {
+                config[0] = 64;
+
+                if (Tree.Nodes[0].Checked)
+                    config[0] += 16;
+                if (Tree.Nodes[1].Checked)
+                {
+                    config[0] += 1;
+
+                    if (Tree.Nodes[1].Nodes[0].Checked)
+                        config[0] += 512;
+                    if (Tree.Nodes[1].Nodes[1].Checked)
+                        config[0] += 4194304;
+                    if (Tree.Nodes[1].Nodes[2].Checked)
+                        config[0] += 8388608;
+                    if (Tree.Nodes[1].Nodes[3].Checked)
+                        config[0] += 33554432;
+                    if (Tree.Nodes[1].Nodes[4].Checked)
+                        config[0] += 67108864;
+                    if (Tree.Nodes[1].Nodes[5].Checked)
+                        config[0] += 134217728;
+                    if (Tree.Nodes[1].Nodes[6].Checked)
+                        config[0] += 268435456;
+                    if (Tree.Nodes[1].Nodes[7].Checked)
+                        config[0] += 256;
+                    if (Tree.Nodes[1].Nodes[8].Checked)
+                        config[1] += 1024;
+                    if (Tree.Nodes[1].Nodes[9].Checked)
+                        config[0] += 536870912;
+                }
+
+                if (Tree.Nodes[2].Checked)
+                {
+                    config[0] += 2;
+                    if (Tree.Nodes[2].Nodes[0].Checked)
+                        config[0] += 8;
+                    if (Tree.Nodes[2].Nodes[1].Checked)
+                        config[0] += 4;
+                    if (Tree.Nodes[2].Nodes[2].Checked)
+                        config[0] += 8192;
+                    if (Tree.Nodes[2].Nodes[3].Checked)
+                        config[0] += 32;
+                    if (Tree.Nodes[2].Nodes[4].Checked)
+                        config[1] += 4096;
+                    if (Tree.Nodes[2].Nodes[5].Checked)
+                        config[1] += 8192;
+                }
+                if (Tree.Nodes[3].Checked)
+                {
+                    config[0] += 2048;
+                    config[1] += 2048;
+                }
+                if (Tree.Nodes[4].Checked)
+                    config[0] += 1024;
+                if (Tree.Nodes[5].Checked)
+                    config[1] += 256;
+                if (Tree.Nodes[6].Checked)
+                    config[1] += 512;
+            }
+            else
+            {
+                if (Tree.Nodes[0].Checked)
+                    config[0] += 128;
+                if (Tree.Nodes[1].Checked)
+                    config[0] +=1073741824;
+                if (Tree.Nodes[2].Checked)
+                    config[0] +=32768;
+                if (Tree.Nodes[3].Checked)
+                    config[0] +=16777216;
+                switch (TypeKeyBox.SelectedIndex)
+                {
+                    case 1:
+                        config[0] += 131072;
+                        break;
+                    case 2:
+                        config[0] += 262144 + 131072;
+                        break;
+                    case 3:
+                        config[0] += 524288;
+                        break;
+                    case 4:
+                        config[0] += 1048576 + 131072;
+                        break;
+                    default:
+                        break;
+                }
+
+                config[1] = 16128;
+            }
+
+
+
+            return config;
+        }
+
         //Функция для выбора всех чекбоксов
         private void CompAllCheck_CheckedChanged(object sender, EventArgs e)
         {
@@ -216,13 +316,13 @@ namespace SQLDrv
                 CompCB.SetItemChecked(i, box.Checked);
         }
 
-       //Функция запуска добавления при нажатии на кнопку "Добавить"
+        //Функция запуска добавления при нажатии на кнопку "Добавить"
         private void insertBT_Click(object sender, EventArgs e)
         {
             time.Text = "Идет добавление объектов в базу данных...";
             time.ForeColor = Color.Blue;
             _ = Sel();
-            
+
         }
 
         //Функция добавления выбранных компонентов в базу данных
@@ -397,7 +497,7 @@ namespace SQLDrv
             read.Close();
         }
 
-       
+
         //Функция для удаления по названию компьютера
         private void DeleteBT_Click(object sender, EventArgs e)
         {
@@ -458,6 +558,7 @@ namespace SQLDrv
             {
                 userlist.Items.Clear();
                 userlist.Text = "";
+                PermBox.Items.Clear();
                 command = new SqlCommand("select Name, Firstname, Midname, ID from pList", conn);
                 read = command.ExecuteReader();
                 while (read.Read())
@@ -472,6 +573,15 @@ namespace SQLDrv
 
                 }
                 read.Close();
+
+                command = new SqlCommand("select name from Groups", conn);
+                read = command.ExecuteReader();
+                while (read.Read())
+                {
+                    PermBox.Items.Add(read.GetValue(0).ToString());
+                }
+                read.Close();
+
 
                 userlist.SelectedIndex = userlist.Items.Count - 1;
             }
@@ -511,7 +621,7 @@ namespace SQLDrv
         //Функция добавления компонентов (для вклвдки приборы)
         private void InsPR_Click(object sender, EventArgs e)
         {
-            
+
             string RSpar = "0";
             RSPB.Visible = true;
             RSPB.Maximum = (int)PRnum.Value;
@@ -642,16 +752,19 @@ namespace SQLDrv
             RSPB.Value = 0;
         }
 
-        
+
 
         //Функция добавления пароля
-        private void insertPass(string pass, int typePass, int config)
+        private void insertPass(string pass, int typePass, int[] config)
         {
             if ((userlist.Items.Count > 0))
             {
                 SqlCommand command;
                 command = new SqlCommand("select coalesce(max(ID) + 1, 1) from pMark", Settings.sqlConnection);
                 string passID = command.ExecuteScalar().ToString();
+                command = new SqlCommand("select ID from Groups where Name = @name", conn);
+                command.Parameters.AddWithValue("name", PermBox.Text);
+                int PermID = (int)command.ExecuteScalar();
                 string name;
                 Random rand = new Random();
                 if (Ruser.Checked)
@@ -663,18 +776,19 @@ namespace SQLDrv
 
                 string owner = "";
 
-
                 owner = name.Remove(0, name.LastIndexOf("(") + 1);
                 owner = owner.Remove(owner.Length - 1, 1);
 
-                command = new SqlCommand("insert pMark values (@ID, @typeP, 0, @conf, @key, @key2, 0, @owner, @name, 1, 2, @ds, @de, 0, NULL, NULL, 1, NULL, NULL)", Settings.sqlConnection);
+                command = new SqlCommand("insert pMark values (@ID, @typeP, 0, @conf, @key, @key2, @stat, @owner, @name, 1, @Ruls, @ds, @de, 0, NULL, NULL, 1, NULL, NULL)", Settings.sqlConnection);
                 command.Parameters.AddWithValue("ID", passID);
                 command.Parameters.AddWithValue("typeP", typePass);
-                command.Parameters.AddWithValue("conf", config);
+                command.Parameters.AddWithValue("conf", config[0]);
                 command.Parameters.AddWithValue("key", pass);
                 command.Parameters.AddWithValue("key2", "ю");
+                command.Parameters.AddWithValue("stat", config[1]);
                 command.Parameters.AddWithValue("owner", owner);
                 command.Parameters.AddWithValue("name", name);
+                command.Parameters.AddWithValue("Ruls", PermID);
                 command.Parameters.AddWithValue("ds", "22.07.2020 0:00:00");
                 command.Parameters.AddWithValue("de", "22.07.2031 23:59:59");
                 //command.Parameters.AddWithValue("pc", "DEMO-12");
@@ -690,14 +804,16 @@ namespace SQLDrv
             int k;
             passPB.Visible = true;
             passPB.Maximum = (int)numPass.Value;
+            int[] conf;
+            conf = passConfig();
             switch (SelectTypePassBox.SelectedIndex)
             {
                 case 0 or 1:
                     command = new SqlCommand("select count(*) from pmark", conn);
-                    k = (int)command.ExecuteScalar()+100000;
-                    for (int j = 0; j<numPass.Value; j++)
+                    k = (int)command.ExecuteScalar() + 100000;
+                    for (int j = 0; j < numPass.Value; j++)
                     {
-                        string str = (k+j).ToString();
+                        string str = (k + j).ToString();
                         byte[] hex = new byte[str.Length + 1];
                         hex[0] = (byte)str.Length;
                         for (int i = 1; i < hex.Length; i++)
@@ -707,8 +823,8 @@ namespace SQLDrv
                         {
                             hex[i] += hex[i - 1];
                         }
-                 
-                        insertPass(codPass(hex), SelectTypePassBox.SelectedIndex + 1, 64);
+
+                        insertPass(codPass(hex), SelectTypePassBox.SelectedIndex + 1, conf);
                         passPB.Value++;
                     }
                     break;
@@ -716,7 +832,7 @@ namespace SQLDrv
                 case 2 or 3:
                     command = new SqlCommand("select count(*) from pmark", conn);
                     k = (int)command.ExecuteScalar();
-                    ulong test = (ulong)k+1;
+                    ulong test = (ulong)k + 1;
                     for (uint j = 0; j < numPass.Value; j++)
                     {
                         test += j;
@@ -725,7 +841,7 @@ namespace SQLDrv
                         tes = BitConverter.GetBytes(test);
                         tes[7] = CRC8(BitConverter.GetBytes(test), 7);
 
-                        insertPass(Encoding.GetEncoding(0).GetChars(new byte[] {0x1})[0].ToString()+codPass(tes), SelectTypePassBox.SelectedIndex+1, 128);
+                        insertPass(Encoding.GetEncoding(0).GetChars(new byte[] { 0x1 })[0].ToString() + codPass(tes), SelectTypePassBox.SelectedIndex + 1, conf);
                         passPB.Value++;
 
                     }
@@ -789,58 +905,51 @@ namespace SQLDrv
 
 
         //Функции изменения окна с параметрами пароля
+
         private void SelectTypePass_SelectedIndexChanged(object sender, EventArgs e)
         {
-            ChangeSettingsList(PassSettingsList, sender);
-        }
-
-        private void ChangeSettingsList(object sender, object type)
-        {
-            SqlCommand command;
-            SqlDataReader read;
-            CheckedListBox box = (CheckedListBox)sender;
-            ComboBox typebox = (ComboBox)type;
-
-            PermBox.Items.Clear();
-            command = new SqlCommand("select name from Groups", Settings.sqlConnection);
-            read = command.ExecuteReader();
-            while (read.Read())
-                PermBox.Items.Add(read.GetValue(0).ToString());
-            read.Close();
-
-            TypeKeyBox.Enabled = false;
-
-            box.Items.Clear();
-            switch (typebox.SelectedIndex)
+            Tree.Nodes.Clear();
+            switch (SelectTypePassBox.SelectedIndex)
             {
-                case 0:
-                    box.Items.Add("Менеджер сервера");
-                    box.Items.Add("Администратор базы данных");
-                    box.Items.Add("Оперативная задача");
-                    box.Items.Add("Учет рабочего времени");
-                    box.Items.Add("Генератор отчетов");
-                    box.Items.Add("Оболочка");
-                    box.Items.Add("Персональная карточка");
-
+                case 0 or 1:
+                    TypeKeyBox.Enabled = false;
+                    Tree.Nodes.Add("Менеджер сервера");
+                    Tree.Nodes.Add("Доступ к АБД");
+                    Tree.Nodes[1].Nodes.Add("Доступ к охранно-пожарной системе");
+                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Доступ\"");
+                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Сценарии управления\"");
+                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Дерево управления\"");
+                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Расписания\"");
+                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Окна времени\"");
+                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Уровни доступа\"");
+                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Персонал\"");
+                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Автомобили\"");
+                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Пароли\"");
+                    Tree.Nodes.Add("Оперативная задача");
+                    Tree.Nodes[2].Nodes.Add("Управление отдельными выходами");
+                    Tree.Nodes[2].Nodes.Add("Управление особо охраняемыми входами");
+                    Tree.Nodes[2].Nodes.Add("Управление системой пожаротушения");
+                    Tree.Nodes[2].Nodes.Add("Обрабатывать тревоги");
+                    Tree.Nodes[2].Nodes.Add("Права на управление включением-выключением");
+                    Tree.Nodes[2].Nodes.Add("Комментировать события");
+                    Tree.Nodes.Add("Учёт рабочего времени");
+                    Tree.Nodes.Add("Генератор отчётов");
+                    Tree.Nodes.Add("Оболочка");
+                    Tree.Nodes.Add("Персональная карточка");
                     break;
-                case 1:
-                    box.Items.Add("Хранить код ключа в ПКУ");
-                    break;
-                case 2 or 3 or 5 or 6:
+                case 2 or 3:
                     TypeKeyBox.Enabled = true;
-                    box.Items.Add("Упрощенный ввод");
-                    box.Items.Add("Хранить код ключа в приборах");
-                    box.Items.Add("Хранить код ключа в ПКУ");
-                    box.Items.Add("Ключ заблокирован");
-                    box.Items.Add("Стоп-лист");
+                    TypeKeyBox.SelectedIndex = 0;
+                    Tree.Nodes.Add("Хранить код ключа в приборах");
+                    Tree.Nodes[0].Checked = true;
+                    Tree.Nodes.Add("Хранить код ключа в ПКУ");
+                    Tree.Nodes.Add("Ключ заблокирован");
+                    Tree.Nodes.Add("Стоп-лист");
                     break;
-                case 4 or 8 or 9 or 10:
-                    box.Items.Add("Ключ заблокирован");
-                    break;
-
             }
 
         }
+
 
         //Функция удаления паролей по id сотрудника
         private void passDel_Click(object sender, EventArgs e)
@@ -863,6 +972,29 @@ namespace SQLDrv
         {
             set.Enabled = true;
             set.Focus();
+        }
+
+        private void Tree_AfterCheck(object sender, TreeViewEventArgs e)
+        {
+            if (e.Node.Text == "Доступ к АБД")
+            {
+                if (e.Node.Checked) 
+                for (int i = 0; i < 10; i++)
+                    Tree.Nodes[1].Nodes[i].Checked = true;
+                else
+                    for (int i = 0; i < 10; i++)
+                        Tree.Nodes[1].Nodes[i].Checked = false;
+            }
+
+            if (e.Node.Text == "Оперативная задача")
+            {
+                if (e.Node.Checked)
+                    for (int i = 0; i < 6; i++)
+                        Tree.Nodes[2].Nodes[i].Checked = true;
+                else
+                    for (int i = 0; i < 6; i++)
+                        Tree.Nodes[2].Nodes[i].Checked = false;
+            }
         }
     }
 }
