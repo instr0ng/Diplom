@@ -71,19 +71,6 @@ namespace SQLDrv
             this.userPB = new System.Windows.Forms.ProgressBar();
             this.userINS = new System.Windows.Forms.Button();
             this.userNum = new System.Windows.Forms.NumericUpDown();
-            this.pass = new System.Windows.Forms.TabPage();
-            this.label11 = new System.Windows.Forms.Label();
-            this.Tree = new System.Windows.Forms.TreeView();
-            this.passPB = new System.Windows.Forms.ProgressBar();
-            this.label12 = new System.Windows.Forms.Label();
-            this.numPass = new System.Windows.Forms.NumericUpDown();
-            this.Ruser = new System.Windows.Forms.CheckBox();
-            this.TypeKeyBox = new System.Windows.Forms.ComboBox();
-            this.PermBox = new System.Windows.Forms.ComboBox();
-            this.passDel = new System.Windows.Forms.Button();
-            this.insPass = new System.Windows.Forms.Button();
-            this.userlist = new System.Windows.Forms.ComboBox();
-            this.SelectTypePassBox = new System.Windows.Forms.ComboBox();
             this.tab.SuspendLayout();
             this.PCtP.SuspendLayout();
             this.RSGB.SuspendLayout();
@@ -96,8 +83,6 @@ namespace SQLDrv
             ((System.ComponentModel.ISupportInitialize)(this.PRnum)).BeginInit();
             this.userPG.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.userNum)).BeginInit();
-            this.pass.SuspendLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numPass)).BeginInit();
             this.SuspendLayout();
             // 
             // tab
@@ -105,7 +90,6 @@ namespace SQLDrv
             this.tab.Controls.Add(this.PCtP);
             this.tab.Controls.Add(this.RStP);
             this.tab.Controls.Add(this.userPG);
-            this.tab.Controls.Add(this.pass);
             this.tab.Dock = System.Windows.Forms.DockStyle.Fill;
             this.tab.Location = new System.Drawing.Point(0, 0);
             this.tab.Name = "tab";
@@ -287,8 +271,8 @@ namespace SQLDrv
             this.ComType.Location = new System.Drawing.Point(17, 95);
             this.ComType.Name = "ComType";
             this.ComType.Size = new System.Drawing.Size(121, 23);
-            this.ComType.TabIndex = 1;
-            this.ComType.Text = "COM ";
+            this.ComType.TabIndex = 0;
+            this.ComType.SelectedIndexChanged += new System.EventHandler(this.ComType_SelectedIndexChanged);
             // 
             // PortCount
             // 
@@ -348,7 +332,7 @@ namespace SQLDrv
             // CompAllCheck
             // 
             this.CompAllCheck.AutoSize = true;
-            this.CompAllCheck.Location = new System.Drawing.Point(16, 306);
+            this.CompAllCheck.Location = new System.Drawing.Point(16, 288);
             this.CompAllCheck.Name = "CompAllCheck";
             this.CompAllCheck.Size = new System.Drawing.Size(94, 19);
             this.CompAllCheck.TabIndex = 11;
@@ -600,177 +584,6 @@ namespace SQLDrv
             0,
             0});
             // 
-            // pass
-            // 
-            this.pass.Controls.Add(this.label11);
-            this.pass.Controls.Add(this.Tree);
-            this.pass.Controls.Add(this.passPB);
-            this.pass.Controls.Add(this.label12);
-            this.pass.Controls.Add(this.numPass);
-            this.pass.Controls.Add(this.Ruser);
-            this.pass.Controls.Add(this.TypeKeyBox);
-            this.pass.Controls.Add(this.PermBox);
-            this.pass.Controls.Add(this.passDel);
-            this.pass.Controls.Add(this.insPass);
-            this.pass.Controls.Add(this.userlist);
-            this.pass.Controls.Add(this.SelectTypePassBox);
-            this.pass.Location = new System.Drawing.Point(4, 24);
-            this.pass.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.pass.Name = "pass";
-            this.pass.Size = new System.Drawing.Size(853, 482);
-            this.pass.TabIndex = 2;
-            this.pass.Text = "Пароли";
-            this.pass.UseVisualStyleBackColor = true;
-            // 
-            // label11
-            // 
-            this.label11.AutoSize = true;
-            this.label11.Location = new System.Drawing.Point(369, 89);
-            this.label11.Name = "label11";
-            this.label11.Size = new System.Drawing.Size(66, 15);
-            this.label11.TabIndex = 18;
-            this.label11.Text = "Тип ключа";
-            // 
-            // Tree
-            // 
-            this.Tree.CheckBoxes = true;
-            this.Tree.Cursor = System.Windows.Forms.Cursors.Default;
-            this.Tree.Location = new System.Drawing.Point(8, 75);
-            this.Tree.Name = "Tree";
-            this.Tree.Size = new System.Drawing.Size(323, 329);
-            this.Tree.TabIndex = 17;
-            this.Tree.AfterCheck += new System.Windows.Forms.TreeViewEventHandler(this.Tree_AfterCheck);
-            // 
-            // passPB
-            // 
-            this.passPB.Location = new System.Drawing.Point(8, 448);
-            this.passPB.Name = "passPB";
-            this.passPB.Size = new System.Drawing.Size(505, 23);
-            this.passPB.TabIndex = 16;
-            this.passPB.Visible = false;
-            // 
-            // label12
-            // 
-            this.label12.AutoSize = true;
-            this.label12.Location = new System.Drawing.Point(369, 135);
-            this.label12.Name = "label12";
-            this.label12.Size = new System.Drawing.Size(122, 15);
-            this.label12.TabIndex = 15;
-            this.label12.Text = "Количество паролей";
-            // 
-            // numPass
-            // 
-            this.numPass.Location = new System.Drawing.Point(369, 153);
-            this.numPass.Maximum = new decimal(new int[] {
-            10000,
-            0,
-            0,
-            0});
-            this.numPass.Minimum = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            this.numPass.Name = "numPass";
-            this.numPass.Size = new System.Drawing.Size(120, 23);
-            this.numPass.TabIndex = 14;
-            this.numPass.Value = new decimal(new int[] {
-            1,
-            0,
-            0,
-            0});
-            // 
-            // Ruser
-            // 
-            this.Ruser.AutoSize = true;
-            this.Ruser.Location = new System.Drawing.Point(214, 6);
-            this.Ruser.Name = "Ruser";
-            this.Ruser.Size = new System.Drawing.Size(156, 19);
-            this.Ruser.TabIndex = 13;
-            this.Ruser.Text = "Случайные сотрудники";
-            this.Ruser.UseVisualStyleBackColor = true;
-            this.Ruser.CheckedChanged += new System.EventHandler(this.Ruser_CheckedChanged);
-            // 
-            // TypeKeyBox
-            // 
-            this.TypeKeyBox.Enabled = false;
-            this.TypeKeyBox.FormattingEnabled = true;
-            this.TypeKeyBox.Items.AddRange(new object[] {
-            "Основной",
-            "Код принуждения",
-            "МАСТЕР",
-            "Открывающий",
-            "Закрывающий"});
-            this.TypeKeyBox.Location = new System.Drawing.Point(369, 106);
-            this.TypeKeyBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.TypeKeyBox.Name = "TypeKeyBox";
-            this.TypeKeyBox.Size = new System.Drawing.Size(172, 23);
-            this.TypeKeyBox.TabIndex = 11;
-            this.TypeKeyBox.Text = "Основной";
-            // 
-            // PermBox
-            // 
-            this.PermBox.FormattingEnabled = true;
-            this.PermBox.Location = new System.Drawing.Point(369, 64);
-            this.PermBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.PermBox.Name = "PermBox";
-            this.PermBox.Size = new System.Drawing.Size(172, 23);
-            this.PermBox.TabIndex = 10;
-            this.PermBox.Text = "Полномочия";
-            // 
-            // passDel
-            // 
-            this.passDel.Location = new System.Drawing.Point(519, 435);
-            this.passDel.Name = "passDel";
-            this.passDel.Size = new System.Drawing.Size(149, 36);
-            this.passDel.TabIndex = 9;
-            this.passDel.Text = "Удалить";
-            this.passDel.UseVisualStyleBackColor = true;
-            this.passDel.Click += new System.EventHandler(this.passDel_Click);
-            // 
-            // insPass
-            // 
-            this.insPass.Location = new System.Drawing.Point(682, 435);
-            this.insPass.Name = "insPass";
-            this.insPass.Size = new System.Drawing.Size(149, 36);
-            this.insPass.TabIndex = 8;
-            this.insPass.Text = "Добавить";
-            this.insPass.UseVisualStyleBackColor = true;
-            this.insPass.Click += new System.EventHandler(this.insPass_Click);
-            // 
-            // userlist
-            // 
-            this.userlist.FormattingEnabled = true;
-            this.userlist.Location = new System.Drawing.Point(7, 6);
-            this.userlist.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.userlist.Name = "userlist";
-            this.userlist.Size = new System.Drawing.Size(202, 23);
-            this.userlist.TabIndex = 4;
-            this.userlist.Text = "Сотрудник";
-            // 
-            // SelectTypePassBox
-            // 
-            this.SelectTypePassBox.FormattingEnabled = true;
-            this.SelectTypePassBox.Items.AddRange(new object[] {
-            "Пароль для программ",
-            "PIN-код",
-            "Брелок TouchMemory",
-            "Proximity карта",
-            "Отпечаток пальца BIOAccess",
-            "Автомобильный номер",
-            "PIN-код2",
-            "Удаленное управление",
-            "Шаблон лица BIOAccess SB101",
-            "Шаблон ладони BIOAccess PA10",
-            "Отпечаток пальца BIOAccess W2"});
-            this.SelectTypePassBox.Location = new System.Drawing.Point(7, 32);
-            this.SelectTypePassBox.Margin = new System.Windows.Forms.Padding(3, 2, 3, 2);
-            this.SelectTypePassBox.Name = "SelectTypePassBox";
-            this.SelectTypePassBox.Size = new System.Drawing.Size(202, 23);
-            this.SelectTypePassBox.TabIndex = 0;
-            this.SelectTypePassBox.Text = "Тип ключа";
-            this.SelectTypePassBox.SelectedIndexChanged += new System.EventHandler(this.SelectTypePass_SelectedIndexChanged);
-            // 
             // Test
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(7F, 15F);
@@ -799,9 +612,6 @@ namespace SQLDrv
             ((System.ComponentModel.ISupportInitialize)(this.PRnum)).EndInit();
             this.userPG.ResumeLayout(false);
             ((System.ComponentModel.ISupportInitialize)(this.userNum)).EndInit();
-            this.pass.ResumeLayout(false);
-            this.pass.PerformLayout();
-            ((System.ComponentModel.ISupportInitialize)(this.numPass)).EndInit();
             this.ResumeLayout(false);
 
         }
@@ -845,23 +655,10 @@ namespace SQLDrv
         private System.Windows.Forms.ComboBox ParentCB;
         private System.Windows.Forms.Label label10;
         private System.Windows.Forms.ProgressBar RSPB;
-        private System.Windows.Forms.TabPage pass;
-        private System.Windows.Forms.ComboBox SelectTypePassBox;
-        private System.Windows.Forms.ComboBox userlist;
-        private System.Windows.Forms.Button passDel;
-        private System.Windows.Forms.Button insPass;
-        private System.Windows.Forms.ComboBox PermBox;
-        private System.Windows.Forms.ComboBox TypeKeyBox;
         private System.Windows.Forms.Label time;
         private System.Windows.Forms.TabPage userPG;
         private System.Windows.Forms.Button userINS;
         private System.Windows.Forms.NumericUpDown userNum;
-        private System.Windows.Forms.CheckBox Ruser;
-        private System.Windows.Forms.Label label12;
-        private System.Windows.Forms.NumericUpDown numPass;
         private System.Windows.Forms.ProgressBar userPB;
-        private System.Windows.Forms.ProgressBar passPB;
-        private System.Windows.Forms.TreeView Tree;
-        private System.Windows.Forms.Label label11;
     }
 }

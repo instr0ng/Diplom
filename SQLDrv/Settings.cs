@@ -11,174 +11,21 @@ namespace SQLDrv
 {
     public partial class Settings : Form
     {
-
-        private string codPass(byte[] pass)
-        {
-            char[] ascii;
-            ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x1 });
-            string nstr = "";
-            for (int i = 0; i < pass.Length; i++)
-            {
-                switch (pass[i])
-                {
-                    case 0x0:
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
-                        nstr += ascii[0].ToString();
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x1 });
-                        nstr += ascii[0].ToString();
-                        break;
-                    case 0xFE:
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
-                        nstr += ascii[0].ToString();
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x2 });
-                        nstr += ascii[0].ToString();
-                        break;
-                    case 0x20:
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
-                        nstr += ascii[0].ToString();
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x3 });
-                        nstr += ascii[0].ToString();
-                        break;
-                    case 0x5C:
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
-                        nstr += ascii[0].ToString();
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x4 });
-                        nstr += ascii[0].ToString();
-                        break;
-                    case 0xA:
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
-                        nstr += ascii[0].ToString();
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x5 });
-                        nstr += ascii[0].ToString();
-                        break;
-                    default:
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { pass[i] });
-                        nstr += ascii[0].ToString();
-                        break;
-                }
-            }
-            return nstr;
-        }
-
-        //Функция подсчёта конфига
-        private int[] passConfig()
-        {
-            int[] config = new int[2];
-            if (SelectTypePassBox.SelectedIndex == 0 || SelectTypePassBox.SelectedIndex == 1)
-            {
-                config[0] = 64;
-
-                if (Tree.Nodes[0].Checked)
-                    config[0] += 16;
-                if (Tree.Nodes[1].Checked)
-                {
-                    config[0] += 1;
-
-                    if (Tree.Nodes[1].Nodes[0].Checked)
-                        config[0] += 512;
-                    if (Tree.Nodes[1].Nodes[1].Checked)
-                        config[0] += 4194304;
-                    if (Tree.Nodes[1].Nodes[2].Checked)
-                        config[0] += 8388608;
-                    if (Tree.Nodes[1].Nodes[3].Checked)
-                        config[0] += 33554432;
-                    if (Tree.Nodes[1].Nodes[4].Checked)
-                        config[0] += 67108864;
-                    if (Tree.Nodes[1].Nodes[5].Checked)
-                        config[0] += 134217728;
-                    if (Tree.Nodes[1].Nodes[6].Checked)
-                        config[0] += 268435456;
-                    if (Tree.Nodes[1].Nodes[7].Checked)
-                        config[0] += 256;
-                    if (Tree.Nodes[1].Nodes[8].Checked)
-                        config[1] += 1024;
-                    if (Tree.Nodes[1].Nodes[9].Checked)
-                        config[0] += 536870912;
-                }
-
-                if (Tree.Nodes[2].Checked)
-                {
-                    config[0] += 2;
-                    if (Tree.Nodes[2].Nodes[0].Checked)
-                        config[0] += 8;
-                    if (Tree.Nodes[2].Nodes[1].Checked)
-                        config[0] += 4;
-                    if (Tree.Nodes[2].Nodes[2].Checked)
-                        config[0] += 8192;
-                    if (Tree.Nodes[2].Nodes[3].Checked)
-                        config[0] += 32;
-                    if (Tree.Nodes[2].Nodes[4].Checked)
-                        config[1] += 4096;
-                    if (Tree.Nodes[2].Nodes[5].Checked)
-                        config[1] += 8192;
-                }
-                if (Tree.Nodes[3].Checked)
-                {
-                    config[0] += 2048;
-                    config[1] += 2048;
-                }
-                if (Tree.Nodes[4].Checked)
-                    config[0] += 1024;
-                if (Tree.Nodes[5].Checked)
-                    config[1] += 256;
-                if (Tree.Nodes[6].Checked)
-                    config[1] += 512;
-            }
-            else
-            {
-                if (Tree.Nodes[0].Checked)
-                    config[0] += 128;
-                if (Tree.Nodes[1].Checked)
-                    config[0] += 1073741824;
-                if (Tree.Nodes[2].Checked)
-                    config[0] += 32768;
-                if (Tree.Nodes[3].Checked)
-                    config[0] += 16777216;
-                switch (TypeKeyBox.SelectedIndex)
-                {
-                    case 1:
-                        config[0] += 131072;
-                        break;
-                    case 2:
-                        config[0] += 262144 + 131072;
-                        break;
-                    case 3:
-                        config[0] += 524288;
-                        break;
-                    case 4:
-                        config[0] += 1048576 + 131072;
-                        break;
-                    default:
-                        break;
-                }
-
-                config[1] = 16128;
-            }
-
-
-
-            return config;
-        }
-
         public static SqlConnection sqlConnection = null;
 
         string currtab = null;
         string compID = "", RSTypeID = "", RScompID = "", ComID = "", RSParID = "0";
-
-        public static Settings f1;
 
         public Settings()
         {
             InitializeComponent();
         }
 
-
         //Функция для запроса имени сервера из реестра
         private string GetServerName()
         {
             RegistryKey LocalMachineRegKey;
             LocalMachineRegKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Wow6432Node\Bolid\ORION\CSO\DBPARAMS12");
-
             string server_name = (string)LocalMachineRegKey.GetValue("SERVER NAME");
             return server_name;
         }
@@ -188,18 +35,14 @@ namespace SQLDrv
         {
             RegistryKey LocalMachineRegKey;
             LocalMachineRegKey = Registry.LocalMachine.OpenSubKey(@"SOFTWARE\Wow6432Node\Bolid\ORION\CSO\DBPARAMS12");
-
             string DB_name = (string)LocalMachineRegKey.GetValue("DATABASE NAME");
             return DB_name;
         }
-
 
         //Функция для соединения с сервером и подключения базы данных
         private void StartConnection()
         {
             var connectionString = $@"User ID= sa;Password = 123456;Initial Catalog={GetDbName()};Data Source={GetServerName()}"; 
-
-            //ExecuteCommandSync("sqllocaldb.exe stop MSSQLLocalDB");
 
             try
             {
@@ -215,7 +58,6 @@ namespace SQLDrv
             {
                 ConnState.Text = "Подключение к базе данных прошло успешно";
                 ConnState.ForeColor = Color.Green;
-
                 upd.Enabled = true;
                 TestBT.Enabled = true;
                 TabSelect.Enabled = true;
@@ -223,38 +65,31 @@ namespace SQLDrv
                 DeleteBtn.Enabled = true;
                 updtab.Enabled = true;
                 currtab = "comps";
-
                 UpdateTab();
             }
         }
 
-
-        
         //Функция добавления выбранных объектов в базу данных
         private void INSBtn_Click(object sender, EventArgs e)
         {
             SqlCommand command;
             switch (currtab)
             {
-
                 case "comps":
-
                     if ((CompIDBox.Text == "") || (CompIPBox.Text == "") || (ComPCIDBox.Text == ""))
                     {
                         MessageBox.Show("Заполнены не все обязательные поля");
                         break;
                     }
-
                     double Gtype = 1;
                     for (int i = 0; i < 8; i++)
                         if (CompCB.GetItemChecked(i))
                             Gtype += Math.Pow(2, i + 1);
-                    Insert("comps", CompIDBox.Text, CompIDBox.Text, CompNameBox.Text, Gtype.ToString(), CompIPBox.Text);
+                    Insert(currtab, CompIDBox.Text, CompIDBox.Text, CompNameBox.Text, Gtype.ToString(), CompIPBox.Text);
                     UpdTextBoxes(CompAutoID, CompIDBox);
                     break;
 
                 case "comports":
-
                     if ((ComIDBox.Text == "") || (ComIPBox.Text == "") || (ComPCIDBox.Text == ""))
                     {
                         MessageBox.Show("Заполнены не все обязательные поля");
@@ -264,12 +99,11 @@ namespace SQLDrv
                     command = new SqlCommand($"select id from comps where name = '{ComPCIDBox.Text}'", sqlConnection);
                     compID = command.ExecuteScalar().ToString();
 
-                    Insert("comports", ComIDBox.Text, compID, ComNumBox.Text, ComAdaptorBox.SelectedIndex.ToString(), "3", (ComTypeBox.SelectedIndex + 1).ToString(), "1", ComIPBox.Text, ComBaudBox.Text);
+                    Insert(currtab, ComIDBox.Text, compID, ComNumBox.Text, ComAdaptorBox.SelectedIndex.ToString(), "3", (ComTypeBox.SelectedIndex + 1).ToString(), "1", ComIPBox.Text, ComBaudBox.Text);
                     UpdTextBoxes(ComAutoID, ComIDBox);
                     break;
 
                 case "rslines":
-
                     if ((RSIDBox.Text == "") || (RSIPBox.Text == "") || (RSAddressBox.Text == "") || (RSPCBox.Text == "") || (RSPortBox.Text == ""))
                     {
                         MessageBox.Show("Заполнены не все обязательные поля");
@@ -290,33 +124,71 @@ namespace SQLDrv
                     {
                         command = new SqlCommand($"select id from rslines where comportID = {ComID} and name = '{RSParentBox.Text}'", sqlConnection);
                         RSParID = command.ExecuteScalar().ToString();
-
                     }
 
-                    Insert("rslines", RSIDBox.Text, RSIDBox.Text, ComID, RSParID, RSAddressBox.Text, (RSInterfaceBox.SelectedIndex + 1).ToString(), RSTypeBox.Text + " (" + RSAddressBox.Text + ")", RSIPBox.Text, RSTypeID);
+                    Insert(currtab, RSIDBox.Text, RSIDBox.Text, ComID, RSParID, RSAddressBox.Text, /*интерфейс зависит от типа порта,*/ RSTypeBox.Text + " (" + RSAddressBox.Text + ")", RSIPBox.Text, RSTypeID);
                     AddDev();
                     UpdTextBoxes(RSAutoID, RSIDBox);
                     UpdComboBoxes(RSPCBox, RSPortBox, RSParentBox);
                     break;
 
                 case "plist":
-
                     if ((ClID.Text == "") || (ClTabID.Text == "") || (ClFirstNameBox.Text == "") || (ClNameBox.Text == "") || (ClMidNameBox.Text == "") || (ClStatusBox.Text == ""))
                     {
                         MessageBox.Show("Заполнены не все обязательные поля");
                         break;
                     }
-
-                    Insert("plist", ClID.Text, ClNameBox.Text, ClFirstNameBox.Text, ClMidNameBox.Text, (ClStatusBox.SelectedIndex + 1).ToString(), ClTabID.Text, DateTime.Now.ToString());
+                    Insert(currtab, ClID.Text, ClNameBox.Text, ClFirstNameBox.Text, ClMidNameBox.Text, (ClStatusBox.SelectedIndex + 1).ToString(), ClTabID.Text, DateTime.Now.ToString());
                     UpdTextBoxes(ComAutoID, ComIDBox);
                     break;
 
-                case "pmark":
-                  insPass_Click();
+                case "AccessZone":
+                    if ((AZID.Text == "") || (AZNum.Text == "") || (AZName.Text == ""))
+                    {
+                        MessageBox.Show("Заполнены не все обязательные поля");
+                        break;
+                    }
+                    Insert(currtab, AZID.Text, AZName.Text, AZNum.Text);
+                    UpdTextBoxes(AZIDAuto, AZID);
+                    UpdTextBoxes(AZNumAuto, AZNum);
+                    break;
+
+                case "AcessPoint":
+                    if (DoorMode.Text == "вход/выход")
+                    {
+                        if ((InKey.Text == "") || (OutKey.Text == ""))
+                        {
+                            MessageBox.Show("Заполнены не все обязательные поля!");
+                            break;
+                        }
+
+                        command = new SqlCommand($"select computerID from devitems where name = '{InKey.Text}'", sqlConnection);
+                        string ik = command.ExecuteScalar().ToString();
+
+                        command = new SqlCommand($"select computerID from devitems where name = '{OutKey.Text}'", sqlConnection);
+                        string ok = command.ExecuteScalar().ToString();
+
+                        if (ik != ok)
+                        {
+                            MessageBox.Show("Реле на вход и выход с различных компьютеров. Введите реле с одного компьютера");
+                            break;
+                        }
+
+                        if ((InKey.Text.Contains("Реле 2")) || (OutKey.Text.Contains("Реле 2")))
+                        {
+                            MessageBox.Show("Дверь с режимом вход/выход не может открывать реле 2!");
+                            break;
+                        }
+
+                        if (l1.Text.Contains("BIOAccess") || l2.Text.Contains("BIOAccess"))
+                        {
+                            MessageBox.Show("прибор BIOAccess не предназначин для управления двумя дверьми!");
+                            break;
+                        }
+                    }
                     break;
 
             }
-
             // Обновление таблицы справа
             UpdateTab();
         }
@@ -324,12 +196,9 @@ namespace SQLDrv
         //Функция обновления TextBox'ов
         private void UpdTextBoxes(CheckBox box, TextBox text)
         {
-            
-
             if (box.Checked)
             {
                 SqlCommand command;
-
                 switch (text.Tag)
                 {
                     case "PC":
@@ -357,6 +226,7 @@ namespace SQLDrv
                             text.Enabled = false;
                         }
                         break;
+
                     case "PORT":
                         if (text.AccessibleName == "PORTID")
                         {
@@ -371,6 +241,7 @@ namespace SQLDrv
                             text.Enabled = false;
                         }
                         break;
+
                     case "RS":
                         if (text.AccessibleName == "RSID")
                         {
@@ -392,6 +263,7 @@ namespace SQLDrv
                             text.Enabled = false;
                         }
                         break;
+
                     case "CL":
                         if (text.AccessibleName == "CLID")
                         {
@@ -403,6 +275,36 @@ namespace SQLDrv
                         if (text.AccessibleName == "CLTABID")
                         {
                             command = new SqlCommand("select coalesce(max(TabNumber)+1, 1) from plist", sqlConnection);
+                            text.Text = command.ExecuteScalar().ToString();
+                            text.Enabled = false;
+                        }
+                        break;
+
+                    case "AZ":
+                        if (text.AccessibleName == "AZID")
+                        {
+                            command = new SqlCommand("select coalesce(max(ID)+1, 1) from AccessZone", sqlConnection);
+                            text.Text = command.ExecuteScalar().ToString();
+                            text.Enabled = false;
+                        }
+                        if (text.AccessibleName == "AZNum")
+                        {
+                            command = new SqlCommand("select coalesce(max(Gindex)+1, 1) from AccessZone", sqlConnection);
+                            text.Text = command.ExecuteScalar().ToString();
+                            text.Enabled = false;
+                        }
+                        break;
+
+                    case "AP":
+                        if (text.AccessibleName == "APID")
+                        {
+                            command = new SqlCommand("select coalesce(max(ID)+1, 1) from AcessPoint", sqlConnection);
+                            text.Text = command.ExecuteScalar().ToString();
+                            text.Enabled = false;
+                        }
+                        if (text.AccessibleName == "APNum")
+                        {
+                            command = new SqlCommand("select coalesce(max(Gindex)+1, 1) from AcessPoint", sqlConnection);
                             text.Text = command.ExecuteScalar().ToString();
                             text.Enabled = false;
                         }
@@ -420,9 +322,9 @@ namespace SQLDrv
 
             if (RSPortBox.Text == "")
                 AutoAddr.Enabled = false;
-            else AutoAddr.Enabled = true;
+            else
+                AutoAddr.Enabled = true;
         }
-
 
         //Функция обновления ComboBox'ов
         private void UpdComboBoxes(params ComboBox[] box)
@@ -437,7 +339,6 @@ namespace SQLDrv
                         switch (box[i].AccessibleName)
                         {
                             case "PCID":
-
                                 box[i].Items.Clear();
                                 box[i].Text = "";
 
@@ -451,50 +352,32 @@ namespace SQLDrv
                                 if (box[i].Items.Count != 0)
                                     box[i].SelectedIndex = box[i].Items.Count - 1;
                                 break;
+
                             case "INTID":
                                 box[i].SelectedIndex = 2;
                                 break;
+
                             case "TYPEID":
                                 box[i].SelectedIndex = 0;
                                 break;
+
                             case "BAUD":
                                 box[i].SelectedIndex = 0;
                                 break;
                         }
                         break;
+
                     case "RS":
                         switch (box[i].AccessibleName)
                         {
-                            case "TYPEID":
-                                ///////////////////////////////////////////////////////////////////
-                                if (box[i].Items.Count == 0)
-                                {
-                                    box[i].Items.Clear();
-                                    box[i].Text = "";
-                                    command = new SqlCommand("select name from dtypesElement where elementtype = 4", sqlConnection);
-                                    read = command.ExecuteReader();
-                                    while (read.Read())
-                                    {
-                                        box[i].Items.Add(read.GetValue(0).ToString());
-                                    }
-                                    read.Close();
-                                    box[i].SelectedIndex = 0;
-                                }
-                                //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
-                                break;
-                            case "INTID":
-                                box[i].SelectedIndex = 0;
-                                break;
                             case "PCID":
                                 ///////////////////////////////////////////////////////////////////
-                                ///
-
                                 box[i].Items.Clear();
                                 command = new SqlCommand("select name from Comps", sqlConnection);
                                 read = command.ExecuteReader();
                                 while (read.Read())
                                 {
-                                    box[i].Items.Add(read.GetValue(0).ToString());
+                                        box[i].Items.Add(read.GetValue(0).ToString());
                                 }
                                 read.Close();
 
@@ -506,52 +389,48 @@ namespace SQLDrv
 
                                 if (box[i].SelectedIndex != -1)
                                     buf = box[i].Text;
-
-                                if (!box[i + 1].Focused)
-                                    box[i + 1].Items.Clear();
-
-                                //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                                
+                                box[i + 1].Items.Clear();
+                                box[i].Text = "";
+                                ///////////////////////////////////////////////////////////////////
                                 break;
+
                             case "PORTID":
-                                ///////////////////////////////////////////////////////////////////////
+                                //////////////////////////////////////////////////////////////////
                                 if ((box[i - 1].SelectedIndex > -1))
                                 {
-                                    box[i].Text = "";
-                                    int count = 0;
-                                    command = new SqlCommand($"select cp.porttype, cp.Number from comps c join comports cp on c.id = cp.computerID where c.name = '{box[i - 1].Text}' and cp.porttype = {RSInterfaceBox.SelectedIndex + 1}", sqlConnection);
+                                    command = new SqlCommand($"select cp.porttype, cp.Number from comps c join comports cp on c.id = cp.computerID where c.name = '{box[i - 1].Text}'", sqlConnection);  /*RSInterfaceBox.SelectedIndex + 1 получать список портов и по ним определять приборы которые могут быть на этом порте */
                                     read = command.ExecuteReader();
                                     while (read.Read())
                                     {
-                                        box[i].Items.Add(ComTypeBox.Items[Convert.ToInt32(read.GetValue(0)) - 1] + read.GetValue(1).ToString());
-                                        count++;
+                                        if (read.GetValue(0).ToString() == "1")
+                                        {
+                                            box[i].Items.Add("COM " + read.GetValue(1).ToString());
+                                        }
+                                        else
+                                        {
+                                            box[i].Items.Add("LAN " + read.GetValue(1).ToString());
+                                        }
                                     }
                                     read.Close();
-
-                                    if (box[i].Items.Count > count)
-                                        while (count > 0)
-                                        {
-                                            box[i].Items.RemoveAt(box[i].Items.Count / 2 + count - 1);
-                                            count--;
-                                        }
-                                          
-                                    if (!box[i].Focused)
-                                        box[i].SelectedIndex = box[i].Items.Count - 1;
                                 }
                                 if ((box[i].SelectedIndex > -1) && (buf != null))
                                 {
-                                    command = new SqlCommand($"select cp.ID from comps c join comports cp on c.id = cp.computerID where c.name = '{buf}' and number = {box[i].Items[box[i].SelectedIndex].ToString().Remove(0, 3)}", sqlConnection);
+                                    command = new SqlCommand($"select cp.ID from comps c join comports cp on c.id = cp.computerID where c.name = '{buf}'", sqlConnection);
                                     buf = command.ExecuteScalar().ToString();
                                 }
-
+                                
                                 box[i + 1].Items.Clear();
                                 box[i + 1].Text = "";
-
-                                //\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+                                box[i + 2].Items.Clear();
+                                box[i + 2].Text = "";
+                                ///////////////////////////////////////////////////////////
                                 break;
+
                             case "PARID":
                                 if ((box[i - 1].SelectedIndex > -1) && (buf != "-"))
                                 {
-                                    box[i].Text = "";
+                                    box[i].Items.Add("");
                                     command = new SqlCommand($"select name from rslines where comportID = {buf}", sqlConnection);
                                     read = command.ExecuteReader();
                                     while (read.Read())
@@ -559,45 +438,149 @@ namespace SQLDrv
                                     read.Close();
                                 }
                                 break;
+
+                            case "TYPEID":
+                                ///////////////////////////////////////////////////////////////////
+                                
+                                    box[i].Items.Clear();
+                                    box[i].Text = "";
+                                    command = new SqlCommand("select name from dtypesElement where elementtype = 4", sqlConnection);
+                                    read = command.ExecuteReader();
+                                    while (read.Read())
+                                    {
+                                        box[i].Items.Add(read.GetValue(0).ToString());
+                                    }
+                                    read.Close();
+                                    box[i].SelectedIndex = 0;
+                                
+                                ////////////////////////////////////////////////////////////////////
+                                break;
                         }
                         break;
-                    case "PASS":
-                        userlist.Items.Clear();
-                        userlist.Text = "";
-                        command = new SqlCommand("select Name, Firstname, Midname, ID from pList", sqlConnection);
-                        read = command.ExecuteReader();
-                        while (read.Read())
-                        {
-                            try
-                            {
-                                userlist.Items.Add(read.GetValue(0).ToString() + " " + read.GetValue(1).ToString().Remove(1, read.GetValue(1).ToString().Length - 1) + ". " + read.GetValue(2).ToString().Remove(1, read.GetValue(2).ToString().Length - 1) + "." + "(" + read.GetValue(3).ToString() + ")");
-                            }
-                            catch
-                            {
-                            }
 
-                        }
-                        read.Close();
-
-                        PermBox.Items.Clear();
-                        command = new SqlCommand("select name from Groups", sqlConnection);
-                        read = command.ExecuteReader();
-                        while (read.Read())
+                    case "APoint":
+                        switch (box[i].AccessibleName)
                         {
-                            PermBox.Items.Add(read.GetValue(0).ToString());
+                            case "DoorType":
+                                if (box[i].SelectedIndex == -1)
+                                    box[i].SelectedIndex = 0;
+
+                                if (box[i].SelectedIndex == 0)
+                                {
+                                    box[i+1].Items.Clear();
+                                    box[i + 1].Items.Add("Проход");
+                                    box[i + 1].Items.Add("Вход");
+                                    box[i + 1].Items.Add("Выход");
+                                }
+                                else
+                                {
+                                    box[i + 1].Items.Clear();
+                                    box[i + 1].Items.Add("Проход");
+                                    box[i + 1].Items.Add("Вход");
+                                    box[i + 1].Items.Add("Выход");
+                                    box[i + 1].Items.Add("Вход/Выход");
+                                }
+                                box[i + 1].SelectedIndex = 1;
+                                break;
+
+                            case "DoorMode":
+                                switch (box[i].SelectedIndex)
+                                {
+                                    case 0:
+                                        box[i + 1].Visible = false;
+                                        label33.Visible = false;
+                                        box[i + 2].Visible = false;
+                                        label34.Visible = false;
+                                        box[i + 3].Visible = true;
+                                        label35.Visible = true;
+                                        box[i + 4].Visible = false;
+                                        label36.Visible = false;
+                                        break;
+
+                                    case 1:
+                                        box[i + 1].Visible = true;
+                                        label33.Visible = true;
+                                        box[i + 2].Visible = false;
+                                        label34.Visible = false;
+                                        box[i + 3].Visible = true;
+                                        label35.Visible = true;
+                                        box[i + 4].Visible = false;
+                                        label36.Visible = false;
+                                        break;
+
+                                    case 2:
+                                        box[i + 1].Visible = false;
+                                        label33.Visible = false;
+                                        box[i + 2].Visible = true;
+                                        label34.Visible = true;
+                                        box[i + 3].Visible = false;
+                                        label35.Visible = false;
+                                        box[i + 4].Visible = true;
+                                        label36.Visible = true;
+                                        break;
+
+                                    case 3:
+                                        box[i + 1].Visible = true;
+                                        label33.Visible = true;
+                                        box[i + 2].Visible = true;
+                                        label34.Visible = true;
+                                        box[i + 3].Visible = true;
+                                        label35.Visible = true;
+                                        box[i + 4].Visible = true;
+                                        label36.Visible = true;
+                                        break;
+                                }
+                                box[i + 1].Items.Clear();
+                                box[i + 2].Items.Clear();
+                                box[i + 3].SelectedIndex = -1;
+                                box[i + 4].SelectedIndex = -1;
+                                break;
+
+                            case "AZoneIn":
+                                box[i].Items.Clear();
+                                box[i].Items.Add(" ");
+                                command = new SqlCommand("Select name from AccessZone", sqlConnection);
+                                read = command.ExecuteReader();
+                                while (read.Read())
+                                    box[i].Items.Add(read.GetValue(0).ToString());
+                                read.Close();
+                                break;
+
+                            case "AZoneOut":
+                                box[i].Items.Clear();
+                                box[i].Items.Add("");
+                                command = new SqlCommand("Select name from AccessZone", sqlConnection);
+                                read = command.ExecuteReader();
+                                while (read.Read())
+                                    box[i].Items.Add(read.GetValue(0).ToString());
+                                read.Close();
+                                break;
+
+                            case "InKey":
+                                box[i].Items.Clear();
+                                box[i].Items.Add(" ");
+                                
+                                command = new SqlCommand("Select d.name from DevItems d join rslines r on d.deviceid = r.id where ItemType = 9 and ((r.devicetype = 16 or (r.devicetype = 4 and d.name like '%Реле 1%') or r.devicetype = 257 or r.devicetype = 258 or r.devicetype = 259 or r.devicetype = 261 or r.devicetype = 262) and d.id not in (select InKeyID from AcessPoint) and d.id not in (select OutKeyID from AcessPoint))", sqlConnection);
+                                read = command.ExecuteReader();
+                                while (read.Read())
+                                    box[i].Items.Add(read.GetValue(0).ToString());
+                                read.Close();
+                                break;
+
+                            case "OutKey":
+                                box[i].Items.Clear();
+                                box[i].Items.Add("");
+                                command = new SqlCommand("Select d.name from DevItems d join rslines r on d.deviceid = r.id where ItemType = 9 and ((r.devicetype = 16 or (r.devicetype = 4 and d.name like '%Реле 1%') or r.devicetype = 257 or r.devicetype = 258 or r.devicetype = 259 or r.devicetype = 261 or r.devicetype = 262) and d.id not in (select InKeyID from AcessPoint) and d.id not in (select OutKeyID from AcessPoint))", sqlConnection);
+                                read = command.ExecuteReader();
+                                while (read.Read())
+                                    box[i].Items.Add(read.GetValue(0).ToString());
+                                read.Close();
+                                break;
                         }
-                        read.Close();
-                        PermBox.SelectedIndex = 0;
-                        userlist.SelectedIndex = userlist.Items.Count - 1;
                         break;
                 }
-
         }
-
-        
-
- 
-
+       
         private void tabControl1_Selected(object sender, TabControlEventArgs e)
         {
             switch (TabSelect.SelectedIndex)
@@ -606,6 +589,7 @@ namespace SQLDrv
                 case 0:
                     currtab = "comps";
                     break;
+
                 case 1:
                     currtab = "comports";
                     if (sqlConnection.State == ConnectionState.Open)
@@ -617,6 +601,7 @@ namespace SQLDrv
                         UpdTextBoxes(ComAutoIP, ComIPBox);
                     }
                     break;
+
                 case 2:
                     currtab = "rslines";
                     if (sqlConnection.State == ConnectionState.Open)
@@ -624,9 +609,10 @@ namespace SQLDrv
                         UpdTextBoxes(RSAutoID, RSIDBox);
                         UpdTextBoxes(RSAutoIP, RSIPBox);
                         UpdTextBoxes(AutoAddr, RSAddressBox);
-                        UpdComboBoxes(RSInterfaceBox, RSPCBox, RSPortBox, RSParentBox, RSTypeBox);
+                        UpdComboBoxes(/*RSInterfaceBox, поменять порядок боксов*/ RSPCBox, RSPortBox);
                     }
                     break;
+
                 case 3:
                     currtab = "plist";
                     if (sqlConnection.State == ConnectionState.Open)
@@ -637,21 +623,25 @@ namespace SQLDrv
                         UpdComboBoxes(ClStatusBox);
                     }
                     break;
+
                 case 4:
-                    currtab = "pmark";
+                    currtab = "AccessZone";
+                    break;
+
+                case 5:
+                    currtab = "AcessPoint";
                     if (sqlConnection.State == ConnectionState.Open)
                     {
-                        UpdComboBoxes(userlist);
+                        UpdTextBoxes(APAutoID, APID);
+                        UpdTextBoxes(APNumAuto, APNum);
+                        UpdComboBoxes(DoorType, DoorMode, AZoneIn, AZoneOut, InKey, OutKey);
                     }
                     break;
             }
             UpdateTab();
         }
 
-
-
         //RSLINES-------------------------------------------------------------------
-
 
         private void TestBT_Click(object sender, EventArgs e)
         {
@@ -660,18 +650,15 @@ namespace SQLDrv
             this.Enabled = false;
         }
 
-
-        //------------------------------------------------------------------------------
-
-
-        //FUNCTIONS-----------------------------------------------------------------------------------------------
-
+        //FUNCTIONS-----------------------------------------------------------------
 
         private void Insert(string table, params string[] args) // Comps - ID, GIndex, Name, GType, IP;
                                                                 // ComPorts - ID, ComputerID, Number, Adaptor, PrAdaptor, PortType, ProtocolType, IP, Baud
                                                                 // RSLines - ID, GIndex, ComPortID, PKUID, GLineNo, DeviceInterface, Name, type
                                                                 // DevItems - ID, ComputerID, DeviceID, Address, Gindex, ItemType, Name
                                                                 // pList - ID, Name, FirstName, MidName, status, Schedule, TabNumber, ChangeTime
+                                                                // AccessZone - ID, Name, Gindex
+                                                                // AcessPoint - ID, ComputerID, Name, Gindex, Gtype, InKeyID, OutKeyID, OutCommand, Mode, IndexZone1, IndexZone2
         {
             if (args.Length == 0)
                 return;
@@ -739,13 +726,35 @@ namespace SQLDrv
                         MessageBox.Show("Введены неккоректные или повторяющиеся данные" + '\n' + '\n' + exception.Message);
                     }
                     break;
+
+                case "AccessZone":
+                    try
+                    {
+                        command = new SqlCommand($"insert AccessZone (ID, Name, Gindex) values ({args[0]}, '{args[1]}', '{args[2]}')", sqlConnection);
+                        command.ExecuteNonQuery();
+                    }
+                    catch (Exception exception)
+                    {
+                        MessageBox.Show("Введены неккоректные или повторяющиеся данные" + '\n' + '\n' + exception.Message);
+                    }
+                    break;
+
+                case "AcessPoint":
+                    try
+                    {
+                        command = new SqlCommand($"insert AcessPoint (ID, ComputerID, Name, Gindex, Gtype, InKeyID, OutKeyID, OutCommand, Mode, IndexZone1, IndexZone2) values ({args[0]}, '{args[1]}', '{args[2]}', '{args[3]}', '{args[4]}', '{args[5]}', '{args[6]}', '{args[7]}', '{args[8]}', '{args[9]}', '{args[10]}')", sqlConnection);
+                        command.ExecuteNonQuery();
+                    }
+                    catch (Exception exception)
+                    {
+                        MessageBox.Show("Введены неккоректные или повторяющиеся данные" + '\n' + '\n' + exception.Message);
+                    }
+                    break;
             }
         }
 
-
         //Функции для обновления элементов управления при изменении их состояний
         /////////////////////////////////////////////////////////////////////////////////////////////////////
-
         private void ComPCIDBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             UpdTextBoxes(CompAutoID, CompIDBox);
@@ -824,8 +833,26 @@ namespace SQLDrv
                 CompCB.SetItemChecked(i, box.Checked);
         }
 
-        /////////////////////////////////////////////////////////////////////////////////////////////////////
-        
+        private void AZIDAuto_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdTextBoxes(AZIDAuto, AZID);
+        }
+
+        private void AZNumAuto_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdTextBoxes(AZNumAuto, AZNum);
+        }
+
+        private void APAutoID_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdTextBoxes(APAutoID, APID);
+        }
+
+        private void APNumAuto_CheckedChanged(object sender, EventArgs e)
+        {
+            UpdTextBoxes(APNumAuto, APNum);
+        }
+
         //Запуск соединения при нажатии на кнопку
         private void ConnState_Click(object sender, EventArgs e)
         {
@@ -841,6 +868,57 @@ namespace SQLDrv
             }
         }
 
+        private void DoorType_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ComboBox box = (ComboBox)sender;
+            if (box.Focused)
+                UpdComboBoxes(DoorType, DoorMode, AZoneIn, AZoneOut, InKey, OutKey);
+        }
+
+        private void DoorMode_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ComboBox box = (ComboBox)sender;
+            if (box.Focused)
+                UpdComboBoxes(DoorMode, AZoneIn, AZoneOut, InKey, OutKey);
+        }
+
+        private void AZoneIn_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ComboBox box = (ComboBox)sender;
+            if (box.Focused)
+                UpdComboBoxes(AZoneOut);
+        }
+
+        private void AZoneOut_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            ComboBox box = (ComboBox)sender;
+            if (box.Focused)
+                UpdComboBoxes(AZoneIn);
+        }
+
+        private void InKey_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (InKey.Text != "")
+            {
+                SqlCommand command = new SqlCommand($"select r.name from Rslines r join DevItems d on r.id = d.deviceID where d.name = '{InKey.Text}'", sqlConnection);
+                l1.Text = command.ExecuteScalar().ToString();
+            }
+            else
+                l1.Text = "";
+        }
+
+        private void OutKey_SelectedIndexChanged(object sender, EventArgs e)
+        {
+            if (OutKey.Text != "")
+            {
+                SqlCommand command = new SqlCommand($"select r.name from Rslines r join DevItems d on r.id = d.deviceID where d.name = '{OutKey.Text}'", sqlConnection);
+                l2.Text = command.ExecuteScalar().ToString();
+            }
+            else
+                l2.Text = "";
+
+        }
+
         //Функция обновления компонентов формы для кнопки "Обновить"
         private void upd_Click(object sender, EventArgs e)
         {
@@ -851,10 +929,9 @@ namespace SQLDrv
                     break;
 
                 case "rslines":
-                    UpdComboBoxes(RSPCBox, RSPortBox, RSParentBox, RSTypeBox, RSInterfaceBox);
+                    UpdComboBoxes(RSPCBox, RSPortBox, RSParentBox, RSTypeBox/*, поправить порядок RSInterfaceBox*/);
                     break;
             }
-           
             UpdateTab();
         }
 
@@ -868,7 +945,6 @@ namespace SQLDrv
             dataAdapter.Fill(ds, "name");
             updtab.DataSource = ds.Tables["name"].DefaultView;
         }
-
 
         //Функция добавления компонентов в таблицу DevItems
         private void AddDev()
@@ -911,141 +987,7 @@ namespace SQLDrv
             }
         }
 
-        private void Tree_AfterCheck(object sender, TreeViewEventArgs e)
-        {
-            if (e.Node.Text == "Доступ к АБД")
-            {
-                if (e.Node.Checked)
-                    for (int i = 0; i < 10; i++)
-                        Tree.Nodes[1].Nodes[i].Checked = true;
-                else
-                    for (int i = 0; i < 10; i++)
-                        Tree.Nodes[1].Nodes[i].Checked = false;
-            }
-
-            if (e.Node.Text == "Оперативная задача")
-            {
-                if (e.Node.Checked)
-                    for (int i = 0; i < 6; i++)
-                        Tree.Nodes[2].Nodes[i].Checked = true;
-                else
-                    for (int i = 0; i < 6; i++)
-                        Tree.Nodes[2].Nodes[i].Checked = false;
-            }
-        }
-
-        //Функции изменения окна с параметрами пароля
-        private void SelectTypePass_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            Tree.Nodes.Clear();
-            switch (SelectTypePassBox.SelectedIndex)
-            {
-                case 0 or 1:
-                    TypeKeyBox.Enabled = false;
-                    Tree.Nodes.Add("Менеджер сервера");
-                    Tree.Nodes.Add("Доступ к АБД");
-                    Tree.Nodes[1].Nodes.Add("Доступ к охранно-пожарной системе");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Доступ\"");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Сценарии управления\"");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Дерево управления\"");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Расписания\"");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Окна времени\"");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Уровни доступа\"");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Персонал\"");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Автомобили\"");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Пароли\"");
-                    Tree.Nodes.Add("Оперативная задача");
-                    Tree.Nodes[2].Nodes.Add("Управление отдельными выходами");
-                    Tree.Nodes[2].Nodes.Add("Управление особо охраняемыми входами");
-                    Tree.Nodes[2].Nodes.Add("Управление системой пожаротушения");
-                    Tree.Nodes[2].Nodes.Add("Обрабатывать тревоги");
-                    Tree.Nodes[2].Nodes.Add("Права на управление включением-выключением");
-                    Tree.Nodes[2].Nodes.Add("Комментировать события");
-                    Tree.Nodes.Add("Учёт рабочего времени");
-                    Tree.Nodes.Add("Генератор отчётов");
-                    Tree.Nodes.Add("Оболочка");
-                    Tree.Nodes.Add("Персональная карточка");
-                    break;
-                case 2 or 3:
-                    TypeKeyBox.Enabled = true;
-                    TypeKeyBox.SelectedIndex = 0;
-                    Tree.Nodes.Add("Хранить код ключа в приборах");
-                    Tree.Nodes[0].Checked = true;
-                    Tree.Nodes.Add("Хранить код ключа в ПКУ");
-                    Tree.Nodes.Add("Ключ заблокирован");
-                    Tree.Nodes.Add("Стоп-лист");
-                    break;
-            }
-        }
-
-
-
-        //Добавление пароля----------------
-        private void insPass_Click()
-        {
-            byte[] hex;
-
-
-            switch (SelectTypePassBox.SelectedIndex)
-            {
-                case 0 or 1:
-                    hex = new byte[PasswordBox.Text.Length+1];
-                    hex[0] = (byte)PasswordBox.Text.Length;
-                    for (int i = 1; i < hex.Length; i++)
-                        hex[i] = Encoding.GetEncoding(0).GetBytes(PasswordBox.Text)[i - 1];
-
-                    for (int i = 1; i < hex.Length; i++)
-                    {
-                        hex[i] += hex[i - 1];
-                    }
-                    insertPass(codPass(hex), SelectTypePassBox.SelectedIndex + 1);
-                    break;
-
-                case 2 or 3:
-                    hex = BitConverter.GetBytes(Convert.ToUInt64(PasswordBox.Text,16));
-                    insertPass(Encoding.GetEncoding(0).GetChars(new byte[] { 0x1 })[0].ToString() + codPass(hex), SelectTypePassBox.SelectedIndex + 1);
-                    break;
-            }
-
-        }
-
-
-        private void insertPass(string pass, int typePass)
-        {
-            if ((userlist.Items.Count > 0))
-            {
-                SqlCommand command;
-                command = new SqlCommand("select coalesce(max(ID) + 1, 1) from pMark", Settings.sqlConnection);
-                string passID = command.ExecuteScalar().ToString();
-                command = new SqlCommand("select ID from Groups where Name = @name", sqlConnection);
-                command.Parameters.AddWithValue("name", PermBox.Text);
-                int PermID = (int)command.ExecuteScalar();
-                string name;
-                Random rand = new Random();
-                name = userlist.Text;
-                string owner = "";
-                owner = name.Remove(0, name.LastIndexOf("(") + 1);
-                owner = owner.Remove(owner.Length - 1, 1);
-                int[] config = passConfig();
-                command = new SqlCommand("insert pMark values (@ID, @typeP, 0, @conf, @key, @key2, @conf2, @owner, @name, 1, @PermID, @ds, @de, 0, NULL, NULL, 1, NULL, NULL)", Settings.sqlConnection);
-                command.Parameters.AddWithValue("ID", passID);
-                command.Parameters.AddWithValue("typeP", typePass);
-                command.Parameters.AddWithValue("conf", config[0]);
-                command.Parameters.AddWithValue("key", pass);
-                command.Parameters.AddWithValue("key2", "ю");
-                command.Parameters.AddWithValue("conf2", config[1]);
-                command.Parameters.AddWithValue("owner", owner);
-                command.Parameters.AddWithValue("name", name);
-                command.Parameters.AddWithValue("PermID", PermID);
-                command.Parameters.AddWithValue("ds", "22.07.2020 0:00:00");
-                command.Parameters.AddWithValue("de", "22.07.2031 23:59:59");
-                //command.Parameters.AddWithValue("pc", "DEMO-12");
-                command.ExecuteScalar();
-            }
-        }
-
         //DELETE FUNCTIONS-----------------------------------------------------------------------------------------------
-
         //Функция удаления строк вручную
         private void DeleteBtn_Click(object sender, EventArgs e)
         {
@@ -1066,8 +1008,7 @@ namespace SQLDrv
                     i++;
                 }
                 count = updtab.SelectedRows.Count;
-                
-                
+            
                 switch (TabSelect.SelectedIndex)
                 {
                     case 0:
@@ -1120,6 +1061,7 @@ namespace SQLDrv
                             }
                         }
                         break;
+
                     case 3:
                         for (i = 0; i < count; i++)
                         {
@@ -1134,6 +1076,13 @@ namespace SQLDrv
                         }
                         break;
 
+                    case 4:
+                        for (i = 0; i < count; i++)
+                        {
+                            command = new SqlCommand($"delete from AccessZone where ID = {DelID[i]}", sqlConnection);
+                            command.ExecuteNonQuery();
+                        }
+                        break;
                 }
                 UpdateTab();
             }
@@ -1142,7 +1091,5 @@ namespace SQLDrv
                 MessageBox.Show("Не выбрана строка удаления, либо выбрана пустая строка.");
             }
         }
-        
-        //---------------------------------------------------------------------------------------------------------------
     }
 }

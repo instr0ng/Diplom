@@ -10,9 +10,7 @@ namespace SQLDrv
 {
     public partial class Test : Form
     {
-
         SqlConnection conn;
-        string[] Clerc = new string[1000];
         public Form set;
 
         public Test(Form f)
@@ -108,206 +106,6 @@ namespace SQLDrv
             "Фомевна", "Станиславовна", "Ираклиевна", "Анатолиевна", "Феликсовна", "Потаповна", "Потаповна", "Петровна", "Тихоновна", "Якововна", "Федотовна", "Юлиевна"
         };
 
-        static readonly byte[] crc8Table = new byte[]
-        {
-        0x00, 0x5E, 0xBC, 0xE2, 0x61, 0x3F, 0xDD, 0x83,
-        0xC2, 0x9C, 0x7E, 0x20, 0xA3, 0xFD, 0x1F, 0x41,
-        0x9D, 0xC3, 0x21, 0x7F, 0xFC, 0xA2, 0x40, 0x1E,
-        0x5F, 0x01, 0xE3, 0xBD, 0x3E, 0x60, 0x82, 0xDC,
-        0x23, 0x7D, 0x9F, 0xC1, 0x42, 0x1C, 0xFE, 0xA0,
-        0xE1, 0xBF, 0x5D, 0x03, 0x80, 0xDE, 0x3C, 0x62,
-        0xBE, 0xE0, 0x02, 0x5C, 0xDF, 0x81, 0x63, 0x3D,
-        0x7C, 0x22, 0xC0, 0x9E, 0x1D, 0x43, 0xA1, 0xFF,
-        0x46, 0x18, 0xFA, 0xA4, 0x27, 0x79, 0x9B, 0xC5,
-        0x84, 0xDA, 0x38, 0x66, 0xE5, 0xBB, 0x59, 0x07,
-        0xDB, 0x85, 0x67, 0x39, 0xBA, 0xE4, 0x06, 0x58,
-        0x19, 0x47, 0xA5, 0xFB, 0x78, 0x26, 0xC4, 0x9A,
-        0x65, 0x3B, 0xD9, 0x87, 0x04, 0x5A, 0xB8, 0xE6,
-        0xA7, 0xF9, 0x1B, 0x45, 0xC6, 0x98, 0x7A, 0x24,
-        0xF8, 0xA6, 0x44, 0x1A, 0x99, 0xC7, 0x25, 0x7B,
-        0x3A, 0x64, 0x86, 0xD8, 0x5B, 0x05, 0xE7, 0xB9,
-        0x8C, 0xD2, 0x30, 0x6E, 0xED, 0xB3, 0x51, 0x0F,
-        0x4E, 0x10, 0xF2, 0xAC, 0x2F, 0x71, 0x93, 0xCD,
-        0x11, 0x4F, 0xAD, 0xF3, 0x70, 0x2E, 0xCC, 0x92,
-        0xD3, 0x8D, 0x6F, 0x31, 0xB2, 0xEC, 0x0E, 0x50,
-        0xAF, 0xF1, 0x13, 0x4D, 0xCE, 0x90, 0x72, 0x2C,
-        0x6D, 0x33, 0xD1, 0x8F, 0x0C, 0x52, 0xB0, 0xEE,
-        0x32, 0x6C, 0x8E, 0xD0, 0x53, 0x0D, 0xEF, 0xB1,
-        0xF0, 0xAE, 0x4C, 0x12, 0x91, 0xCF, 0x2D, 0x73,
-        0xCA, 0x94, 0x76, 0x28, 0xAB, 0xF5, 0x17, 0x49,
-        0x08, 0x56, 0xB4, 0xEA, 0x69, 0x37, 0xD5, 0x8B,
-        0x57, 0x09, 0xEB, 0xB5, 0x36, 0x68, 0x8A, 0xD4,
-        0x95, 0xCB, 0x29, 0x77, 0xF4, 0xAA, 0x48, 0x16,
-        0xE9, 0xB7, 0x55, 0x0B, 0x88, 0xD6, 0x34, 0x6A,
-        0x2B, 0x75, 0x97, 0xC9, 0x4A, 0x14, 0xF6, 0xA8,
-        0x74, 0x2A, 0xC8, 0x96, 0x15, 0x4B, 0xA9, 0xF7,
-        0xB6, 0xE8, 0x0A, 0x54, 0xD7, 0x89, 0x6B, 0x35
-        };
-        ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
-        /////Таблицы 
-
-
-
-        //Функция кодирования по CRC8
-        public static byte CRC8(byte[] bytes, int len)
-        {
-            byte crc = 0;
-            for (var i = 0; i < len; ++i)
-                crc = crc8Table[crc ^ bytes[i]];
-            return crc;
-        }
-
-
-        //Функция кодирования пароля
-        private string codPass(byte[] pass)
-        {
-            char[] ascii;
-            ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x1 });
-            string nstr = "";
-            for (int i = 0; i < pass.Length; i++)
-            {
-                switch (pass[i])
-                {
-                    case 0x0:
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
-                        nstr += ascii[0].ToString();
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x1 });
-                        nstr += ascii[0].ToString();
-                        break;
-                    case 0xFE:
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
-                        nstr += ascii[0].ToString();
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x2 });
-                        nstr += ascii[0].ToString();
-                        break;
-                    case 0x20:
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
-                        nstr += ascii[0].ToString();
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x3 });
-                        nstr += ascii[0].ToString();
-                        break;
-                    case 0x5C:
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
-                        nstr += ascii[0].ToString();
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x4 });
-                        nstr += ascii[0].ToString();
-                        break;
-                    case 0xA:
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0xFE });
-                        nstr += ascii[0].ToString();
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { 0x5 });
-                        nstr += ascii[0].ToString();
-                        break;
-                    default:
-                        ascii = Encoding.GetEncoding(0).GetChars(new byte[] { pass[i] });
-                        nstr += ascii[0].ToString();
-                        break;
-                }
-            }
-            return nstr;
-        }
-
-
-        //Функция подсчёта конфига
-        private int[] passConfig()
-        {
-            int[] config = new int[2];
-            if (SelectTypePassBox.SelectedIndex == 0 || SelectTypePassBox.SelectedIndex == 1)
-            {
-                config[0] = 64;
-
-                if (Tree.Nodes[0].Checked)
-                    config[0] += 16;
-                if (Tree.Nodes[1].Checked)
-                {
-                    config[0] += 1;
-
-                    if (Tree.Nodes[1].Nodes[0].Checked)
-                        config[0] += 512;
-                    if (Tree.Nodes[1].Nodes[1].Checked)
-                        config[0] += 4194304;
-                    if (Tree.Nodes[1].Nodes[2].Checked)
-                        config[0] += 8388608;
-                    if (Tree.Nodes[1].Nodes[3].Checked)
-                        config[0] += 33554432;
-                    if (Tree.Nodes[1].Nodes[4].Checked)
-                        config[0] += 67108864;
-                    if (Tree.Nodes[1].Nodes[5].Checked)
-                        config[0] += 134217728;
-                    if (Tree.Nodes[1].Nodes[6].Checked)
-                        config[0] += 268435456;
-                    if (Tree.Nodes[1].Nodes[7].Checked)
-                        config[0] += 256;
-                    if (Tree.Nodes[1].Nodes[8].Checked)
-                        config[1] += 1024;
-                    if (Tree.Nodes[1].Nodes[9].Checked)
-                        config[0] += 536870912;
-                }
-
-                if (Tree.Nodes[2].Checked)
-                {
-                    config[0] += 2;
-                    if (Tree.Nodes[2].Nodes[0].Checked)
-                        config[0] += 8;
-                    if (Tree.Nodes[2].Nodes[1].Checked)
-                        config[0] += 4;
-                    if (Tree.Nodes[2].Nodes[2].Checked)
-                        config[0] += 8192;
-                    if (Tree.Nodes[2].Nodes[3].Checked)
-                        config[0] += 32;
-                    if (Tree.Nodes[2].Nodes[4].Checked)
-                        config[1] += 4096;
-                    if (Tree.Nodes[2].Nodes[5].Checked)
-                        config[1] += 8192;
-                }
-                if (Tree.Nodes[3].Checked)
-                {
-                    config[0] += 2048;
-                    config[1] += 2048;
-                }
-                if (Tree.Nodes[4].Checked)
-                    config[0] += 1024;
-                if (Tree.Nodes[5].Checked)
-                    config[1] += 256;
-                if (Tree.Nodes[6].Checked)
-                    config[1] += 512;
-            }
-            else
-            {
-                if (Tree.Nodes[0].Checked)
-                    config[0] += 128;
-                if (Tree.Nodes[1].Checked)
-                    config[0] +=1073741824;
-                if (Tree.Nodes[2].Checked)
-                    config[0] +=32768;
-                if (Tree.Nodes[3].Checked)
-                    config[0] +=16777216;
-                switch (TypeKeyBox.SelectedIndex)
-                {
-                    case 1:
-                        config[0] += 131072;
-                        break;
-                    case 2:
-                        config[0] += 262144 + 131072;
-                        break;
-                    case 3:
-                        config[0] += 524288;
-                        break;
-                    case 4:
-                        config[0] += 1048576 + 131072;
-                        break;
-                    default:
-                        break;
-                }
-
-                config[1] = 16128;
-            }
-
-
-
-            return config;
-        }
-
         //Функция для выбора всех чекбоксов
         private void CompAllCheck_CheckedChanged(object sender, EventArgs e)
         {
@@ -319,6 +117,11 @@ namespace SQLDrv
         //Функция запуска добавления при нажатии на кнопку "Добавить"
         private void insertBT_Click(object sender, EventArgs e)
         {
+            PCGB.Enabled = false;
+            portGB.Enabled = false;
+            RSGB.Enabled = false;
+            insertBT.Enabled = false;
+            DeleteBT.Enabled = false;
             time.Text = "Идет добавление объектов в базу данных...";
             time.ForeColor = Color.Blue;
             _ = Sel();
@@ -333,8 +136,6 @@ namespace SQLDrv
             progressBar1.Visible = true;
             progressBar1.Style = ProgressBarStyle.Marquee;
             progressBar1.MarqueeAnimationSpeed = 50;
-
-            DateTime dold = DateTime.Now;
 
             double Gtype = 1;
             string pcip = "127.0.0.1";
@@ -383,91 +184,96 @@ namespace SQLDrv
                 command.ExecuteNonQuery();
             }
 
-            command = new SqlCommand(
-                "DECLARE @ncom INT, @rscomid INT, @rstypeid INT, @rs INT, @rscnt INT, @ipc INT, @icom INT, @irs INT, @jrs INT, @idev INT, @addr INT, @cntReader INT, @cntKey INT, @cntShl INT \n" +
-                "DECLARE @rsname varchar(50) \n" +
-                $"DECLARE @pcid INT, @comid INT, @rsid INT, @devid INT \n" +
-                $"SET @pcid = {pcid} \n" +
-                $"SET @rscnt = {rslist.CheckedItems.Count} \n" +
-                $"SET @devid = {DevItmID} \n" +
-                $"SET @comid = {comid} \n" +
-                $"SET @rsid = {rsid} \n" +
-                $"SET @ipc = 1 \n" +
-                $"SET @icom = 1 \n" +
-                $"SET @irs = 1 \n" +
-                $"SET @idev = 1 \n" +
-                $"SET @jrs = 1; \n" +
-                $"set @irs = 1 \n" +
-                $"WHILE @ipc <= {countPC.Value} \n" +
-                $"BEGIN \n" +
-                    $"insert into Comps values (@pcid, @pcid, '{CompsName.Text}' + convert(varchar, @ipc), NULL, '{pcip}', {Gtype},NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL); \n" +
-                    $"set @icom = 1 \n" +
-
-                    $"WHILE @icom <= {PortCount.Value} \n" +
+                command = new SqlCommand(
+                    "DECLARE @ncom INT, @rscomid INT, @rstypeid INT, @rs INT, @rscnt INT, @ipc INT, @icom INT, @irs INT, @jrs INT, @idev INT, @addr INT, @cntReader INT, @cntKey INT, @cntShl INT \n" +
+                    "DECLARE @rsname varchar(50) \n" +
+                    $"DECLARE @pcid INT, @comid INT, @rsid INT, @devid INT \n" +
+                    $"SET @pcid = {pcid} \n" +
+                    $"SET @rscnt = {rslist.CheckedItems.Count} \n" +
+                    $"SET @devid = {DevItmID} \n" +
+                    $"SET @comid = {comid} \n" +
+                    $"SET @rsid = {rsid} \n" +
+                    $"SET @ipc = 1 \n" +
+                    $"SET @icom = 1 \n" +
+                    $"SET @irs = 1 \n" +
+                    $"SET @idev = 1 \n" +
+                    $"SET @jrs = 1; \n" +
+                    $"set @irs = 1 \n" +
+                    $"WHILE @ipc <= {countPC.Value} \n" +
                     $"BEGIN \n" +
-                        $"insert into Comports values(@comid, @pcid, @icom, 2, 3, {ComType.SelectedIndex + 1}, NULL, '127.0.0.1', 1, NULL, NULL, 1, NULL, 9600);  \n" +
-                        $"set @irs = 1 \n" +
-                        $"set @addr = 1 \n " +
+                        $"insert into Comps values (@pcid, @pcid, '{CompsName.Text}' + convert(varchar, @ipc), NULL, '{pcip}', {Gtype},NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL); \n" +
+                        $"set @icom = 1 \n" +
 
-                        $"WHILE @irs <= @rscnt \n" +
+                        $"WHILE @icom <= {PortCount.Value} \n" +
                         $"BEGIN \n" +
-                            $"set @rstypeid = (select distinct DeviceType from dtypesElement d join rslist r on d.name = r.name where r.id = @irs) \n" +
-                            $"set @rsname = (select distinct name from rslist where id = @irs) \n" +
-                            $"set @jrs = 1 \n" +
+                            $"insert into Comports values(@comid, @pcid, @icom, 2, 3, {ComType.SelectedIndex + 1}, NULL, '127.0.0.1', 1, NULL, NULL, 1, NULL, 9600);  \n" +
+                            $"set @irs = 1 \n" +
+                            $"set @addr = 1 \n " +
 
-                            $"WHILE @jrs <= {RScount.Value} \n" +
+                            $"WHILE @irs <= @rscnt \n" +
                             $"BEGIN \n" +
-                                $"insert into RSLines values (@rsid, @rsid, @comid, 0, @addr, @rsname, @rstypeid, NULL, 0, 0, 0, '127.0.0.1', NULL, NULL, NULL, 0, 0, NULL, 0, 1, 0, NULL, 0, 1, NULL); \n" +
-                                $"set @cntReader = (select distinct CountReader from dTypesElement where name = @rsname and DeviceVersionStr IS NULL) \n" +
-                                $"set @cntKey = (select distinct CountKey from dTypesElement where name = @rsname and DeviceVersionStr IS NULL) \n" +
-                                $"set @cntShl = (select distinct CountShl from dTypesElement where name = @rsname and DeviceVersionStr IS NULL) \n" +
-                                $"set @idev = 1 \n" +
+                                $"set @rstypeid = (select distinct DeviceType from dtypesElement d join rslist r on (d.name = r.name and d.DeviceVersionStr is null) or (d.name + ' ' + d.DeviceVersionStr) = r.name  where r.id = @irs) \n" +
+                                $"set @rsname = (select distinct d.name from dtypesElement d join rslist r on (d.name = r.name and d.DeviceVersionStr is null) or (d.name + ' ' + d.DeviceVersionStr) = r.name where r.id = @irs) \n" +
+                                $"set @jrs = 1 \n" +
 
-                                $"WHILE @idev <= @cntReader \n" +
+                                $"WHILE @jrs <= {RScount.Value} \n" +
                                 $"BEGIN \n" +
-                                    $"insert into DevItems values (@devid, @pcid, @rsid, @addr * 256 + @idev, @devid, 'Считыватель ' + convert(varchar, @idev) + '. Прибор ' + convert(varchar, @addr), Null, 0, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) \n" +
-                                    $"set @idev = @idev + 1 \n" +
-                                    $"set @devid = @devid + 1 \n" +
-                                $"END \n" +
-                                $"set @idev = 1 \n" +
+                                    $"insert into RSLines values (@rsid, @rsid, @comid, 0, @addr, substring(@rsname, 1, 25), @rstypeid, NULL, 0, 0, 0, '127.0.0.1', NULL, NULL, NULL, 0, 0, NULL, 0, 1, 0, NULL, 0, 1, NULL); \n" +
+                                    $"set @cntReader = (select distinct CountReader from dTypesElement where name = @rsname and DeviceVersionStr IS NULL) \n" +
+                                    $"set @cntKey = (select distinct CountKey from dTypesElement where (name = @rsname and DeviceVersionStr is null) or (name + ' ' + DeviceVersionStr) = @rsname) \n" +
+                                    $"set @cntShl = (select distinct CountShl from dTypesElement where (name = @rsname and DeviceVersionStr is null) or (name + ' ' + DeviceVersionStr) = @rsname) \n" +
+                                    $"set @idev = 1 \n" +
 
-                                $"WHILE @idev <= @cntKey \n" +
-                                $"BEGIN \n" +
-                                    $"insert into DevItems values (@devid, @pcid, @rsid, @addr * 256 + @idev, @devid, 'Реле ' + convert(varchar, @idev) + '. Прибор ' + convert(varchar, @addr), Null, 0, 9, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) \n" +
-                                    $"set @idev = @idev + 1 \n" +
-                                    $"set @devid = @devid + 1 \n" +
-                                $"END \n" +
-                                $"set @idev = 1 \n" +
+                                    $"WHILE @idev <= @cntReader \n" +
+                                    $"BEGIN \n" +
+                                        $"insert into DevItems values (@devid, @pcid, @rsid, @addr * 256 + @idev, @devid, 'Считыватель ' + convert(varchar, @idev) + ', Прибор ' + convert(varchar, @addr), Null, 0, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) \n" +
+                                        $"set @idev = @idev + 1 \n" +
+                                        $"set @devid = @devid + 1 \n" +
+                                    $"END \n" +
+                                    $"set @idev = 1 \n" +
 
-                                $"WHILE @idev <= @cntKey \n" +
-                                $"BEGIN \n" +
-                                    $"insert into DevItems values (@devid, @pcid, @rsid, @addr * 256 + @idev, @devid, 'ШС ' + convert(varchar, @idev) + '. Прибор ' + convert(varchar, @addr), Null, 0, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) \n" +
-                                    $"set @idev = @idev + 1 \n" +
-                                    $"set @devid = @devid + 1 \n" +
-                                $"END \n" +
+                                    $"WHILE @idev <= @cntKey \n" +
+                                    $"BEGIN \n" +
+                                        $"insert into DevItems values (@devid, @pcid, @rsid, @addr * 256 + @idev, @devid, 'Реле ' + convert(varchar, @idev) + ', Прибор ' + convert(varchar, @addr), Null, 0, 9, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) \n" +
+                                        $"set @idev = @idev + 1 \n" +
+                                        $"set @devid = @devid + 1 \n" +
+                                    $"END \n" +
+                                    $"set @idev = 1 \n" +
 
-                                $"set @addr = @addr + 1 \n" +
-                                $"set @jrs = @jrs + 1 \n" +
-                                $"set @rsid = @rsid + 1 \n" +
-                            $"END \n" +
+                                    $"WHILE @idev <= @cntShl \n" +
+                                    $"BEGIN \n" +
+                                        $"insert into DevItems values (@devid, @pcid, @rsid, @addr * 256 + @idev, @devid, 'ШС ' + convert(varchar, @idev) + ', Прибор ' + convert(varchar, @addr), Null, 0, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) \n" +
+                                        $"set @idev = @idev + 1 \n" +
+                                        $"set @devid = @devid + 1 \n" +
+                                    $"END \n" +
+
+                                    $"set @addr = @addr + 1 \n" +
+                                    $"set @jrs = @jrs + 1 \n" +
+                                    $"set @rsid = @rsid + 1 \n" +
+                                $"END \n" +
                             $"set @irs = @irs + 1 \n" +
+                            $"END \n" +
+
+                            $"set @icom = @icom + 1 \n" +
+                            $"set @comid = @comid + 1 \n" +
                         $"END \n" +
 
-                        $"set @icom = @icom + 1 \n" +
-                        $"set @comid = @comid + 1 \n" +
-                    $"END \n" +
+                        $"set @ipc = @ipc + 1; \n" +
+                        $"set @pcid = @pcid + 1; \n" +
+                    $"END", conn);
 
-                    $"set @ipc = @ipc + 1; \n" +
-                    $"set @pcid = @pcid + 1; \n" +
-                $"END", conn);
+                command.CommandTimeout = 500;
 
-            command.CommandTimeout = 5000;
-
-            await command.ExecuteNonQueryAsync();
+                await command.ExecuteNonQueryAsync();
+            
 
             time.Text = "Объекты добавлены";
             time.ForeColor = Color.Green;
-
+            PCGB.Enabled = true;
+            portGB.Enabled = true;
+            RSGB.Enabled = true;
+            insertBT.Enabled = true;
+            DeleteBT.Enabled = true;
             progressBar1.Visible = false;
         }
 
@@ -482,25 +288,17 @@ namespace SQLDrv
             RSGB.Enabled = true;
         }
 
-
         //Загрузка формы
         private void Test_Load(object sender, EventArgs e)
         {
-            rslist.Items.Clear();
-            rslist.Text = "";
-            SqlCommand command = new SqlCommand("select name from dtypesElement where elementtype=4", conn);
-            SqlDataReader read = command.ExecuteReader();
-            while (read.Read())
-            {
-                rslist.Items.Add(read.GetValue(0).ToString());
-            }
-            read.Close();
+            ComType.SelectedIndex = 1;
         }
-
 
         //Функция для удаления по названию компьютера
         private void DeleteBT_Click(object sender, EventArgs e)
         {
+            time.Text = "";
+            progressBar1.Style = ProgressBarStyle.Continuous;
             progressBar1.Visible = true;
             progressBar1.Maximum = 5;
             SqlCommand command;
@@ -519,9 +317,13 @@ namespace SQLDrv
             progressBar1.Value++;
             command = new SqlCommand("delete from comps where name like '%" + DelcompID + "%'", conn);
             command.ExecuteNonQuery();
+            
             progressBar1.Value++;
             progressBar1.Visible = false;
             progressBar1.Value = 0;
+            time.ForeColor = Color.Red;
+            time.Text = "Объекты удалены";
+
         }
 
         //Обновление страниц
@@ -531,7 +333,6 @@ namespace SQLDrv
             SqlDataReader read;
             if (tab.SelectedIndex == 1)
             {
-
                 RStype.Items.Clear();
                 RStype.Text = "";
                 command = new SqlCommand("select name from dtypesElement where elementtype=4", conn);
@@ -553,37 +354,6 @@ namespace SQLDrv
                     SelPC.Items.Add(read.GetValue(0).ToString());
                 read.Close();
                 SelPC.SelectedIndex = SelPC.Items.Count - 1;
-            }
-            if (tab.SelectedIndex == 3)
-            {
-                userlist.Items.Clear();
-                userlist.Text = "";
-                PermBox.Items.Clear();
-                command = new SqlCommand("select Name, Firstname, Midname, ID from pList", conn);
-                read = command.ExecuteReader();
-                while (read.Read())
-                {
-                    try
-                    {
-                        userlist.Items.Add(read.GetValue(0).ToString() + " " + read.GetValue(1).ToString().Remove(1, read.GetValue(1).ToString().Length - 1) + ". " + read.GetValue(2).ToString().Remove(1, read.GetValue(2).ToString().Length - 1) + "." + "(" + read.GetValue(3).ToString() + ")");
-                    }
-                    catch
-                    {
-                    }
-
-                }
-                read.Close();
-
-                command = new SqlCommand("select name from Groups", conn);
-                read = command.ExecuteReader();
-                while (read.Read())
-                {
-                    PermBox.Items.Add(read.GetValue(0).ToString());
-                }
-                read.Close();
-
-
-                userlist.SelectedIndex = userlist.Items.Count - 1;
             }
         }
 
@@ -621,7 +391,6 @@ namespace SQLDrv
         //Функция добавления компонентов (для вклвдки приборы)
         private void InsPR_Click(object sender, EventArgs e)
         {
-
             string RSpar = "0";
             RSPB.Visible = true;
             RSPB.Maximum = (int)PRnum.Value;
@@ -635,12 +404,10 @@ namespace SQLDrv
                 command.Parameters.AddWithValue("comID", comid);
                 command.Parameters.AddWithValue("name", ParentCB.Text);
                 RSpar = command.ExecuteScalar().ToString();
-
             }
 
             for (int i = 1; i <= PRnum.Value; i++)
             {
-
                 SqlCommand command = new SqlCommand("select DeviceType from dtypesElement where name = @name", conn);
                 command.Parameters.AddWithValue("name", RStype.Text);
                 string RSTypeID = command.ExecuteScalar().ToString();
@@ -669,7 +436,6 @@ namespace SQLDrv
                 command.Parameters.AddWithValue("Type", RSTypeID);
 
                 command.ExecuteNonQuery();
-
 
                 //DEVITEMS----------------------------------------------------------------------------------------------------
                 command = new SqlCommand("select CountReader from dTypesElement where name = @name", conn);
@@ -752,105 +518,6 @@ namespace SQLDrv
             RSPB.Value = 0;
         }
 
-
-
-        //Функция добавления пароля
-        private void insertPass(string pass, int typePass, int[] config)
-        {
-            if ((userlist.Items.Count > 0))
-            {
-                SqlCommand command;
-                command = new SqlCommand("select coalesce(max(ID) + 1, 1) from pMark", Settings.sqlConnection);
-                string passID = command.ExecuteScalar().ToString();
-                command = new SqlCommand("select ID from Groups where Name = @name", conn);
-                command.Parameters.AddWithValue("name", PermBox.Text);
-                int PermID = (int)command.ExecuteScalar();
-                string name;
-                Random rand = new Random();
-                if (Ruser.Checked)
-                {
-                    name = userlist.Items[rand.Next(0, userlist.Items.Count)].ToString();
-                }
-                else
-                    name = userlist.Text;
-
-                string owner = "";
-
-                owner = name.Remove(0, name.LastIndexOf("(") + 1);
-                owner = owner.Remove(owner.Length - 1, 1);
-
-                command = new SqlCommand("insert pMark values (@ID, @typeP, 0, @conf, @key, @key2, @stat, @owner, @name, 1, @Ruls, @ds, @de, 0, NULL, NULL, 1, NULL, NULL)", Settings.sqlConnection);
-                command.Parameters.AddWithValue("ID", passID);
-                command.Parameters.AddWithValue("typeP", typePass);
-                command.Parameters.AddWithValue("conf", config[0]);
-                command.Parameters.AddWithValue("key", pass);
-                command.Parameters.AddWithValue("key2", "ю");
-                command.Parameters.AddWithValue("stat", config[1]);
-                command.Parameters.AddWithValue("owner", owner);
-                command.Parameters.AddWithValue("name", name);
-                command.Parameters.AddWithValue("Ruls", PermID);
-                command.Parameters.AddWithValue("ds", "22.07.2020 0:00:00");
-                command.Parameters.AddWithValue("de", "22.07.2031 23:59:59");
-                //command.Parameters.AddWithValue("pc", "DEMO-12");
-                command.ExecuteScalar();
-            }
-        }
-
-        //Кодирование ключа
-        private void insPass_Click(object sender, EventArgs e)
-        {
-            SqlCommand command;
-            byte[] tes = new byte[8];
-            int k;
-            passPB.Visible = true;
-            passPB.Maximum = (int)numPass.Value;
-            int[] conf;
-            conf = passConfig();
-            switch (SelectTypePassBox.SelectedIndex)
-            {
-                case 0 or 1:
-                    command = new SqlCommand("select count(*) from pmark", conn);
-                    k = (int)command.ExecuteScalar() + 100000;
-                    for (int j = 0; j < numPass.Value; j++)
-                    {
-                        string str = (k + j).ToString();
-                        byte[] hex = new byte[str.Length + 1];
-                        hex[0] = (byte)str.Length;
-                        for (int i = 1; i < hex.Length; i++)
-                            hex[i] = Encoding.GetEncoding(0).GetBytes(str)[i - 1];
-
-                        for (int i = 1; i < hex.Length; i++)
-                        {
-                            hex[i] += hex[i - 1];
-                        }
-
-                        insertPass(codPass(hex), SelectTypePassBox.SelectedIndex + 1, conf);
-                        passPB.Value++;
-                    }
-                    break;
-
-                case 2 or 3:
-                    command = new SqlCommand("select count(*) from pmark", conn);
-                    k = (int)command.ExecuteScalar();
-                    ulong test = (ulong)k + 1;
-                    for (uint j = 0; j < numPass.Value; j++)
-                    {
-                        test += j;
-                        test <<= 8;
-                        test += 0x1;
-                        tes = BitConverter.GetBytes(test);
-                        tes[7] = CRC8(BitConverter.GetBytes(test), 7);
-
-                        insertPass(Encoding.GetEncoding(0).GetChars(new byte[] { 0x1 })[0].ToString() + codPass(tes), SelectTypePassBox.SelectedIndex + 1, conf);
-                        passPB.Value++;
-
-                    }
-                    break;
-            }
-            passPB.Visible = false;
-            passPB.Value = 0;
-        }
-
         //Функция добавления сотрудников
         private void userINS_Click(object sender, EventArgs e)
         {
@@ -890,111 +557,23 @@ namespace SQLDrv
             userPB.Value = 0;
         }
 
-        //Чекбокс для рандомного выбора сотрудника для добавления пароля
-        private void Ruser_CheckedChanged(object sender, EventArgs e)
-        {
-            if (Ruser.Checked)
-            {
-                userlist.Enabled = false;
-            }
-            else
-            {
-                userlist.Enabled = true;
-            }
-        }
-
-
-        //Функции изменения окна с параметрами пароля
-
-        private void SelectTypePass_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            Tree.Nodes.Clear();
-            switch (SelectTypePassBox.SelectedIndex)
-            {
-                case 0 or 1:
-                    TypeKeyBox.Enabled = false;
-                    Tree.Nodes.Add("Менеджер сервера");
-                    Tree.Nodes.Add("Доступ к АБД");
-                    Tree.Nodes[1].Nodes.Add("Доступ к охранно-пожарной системе");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Доступ\"");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Сценарии управления\"");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Дерево управления\"");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Расписания\"");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Окна времени\"");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Уровни доступа\"");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Персонал\"");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Автомобили\"");
-                    Tree.Nodes[1].Nodes.Add("Доступ к вкладке \"Пароли\"");
-                    Tree.Nodes.Add("Оперативная задача");
-                    Tree.Nodes[2].Nodes.Add("Управление отдельными выходами");
-                    Tree.Nodes[2].Nodes.Add("Управление особо охраняемыми входами");
-                    Tree.Nodes[2].Nodes.Add("Управление системой пожаротушения");
-                    Tree.Nodes[2].Nodes.Add("Обрабатывать тревоги");
-                    Tree.Nodes[2].Nodes.Add("Права на управление включением-выключением");
-                    Tree.Nodes[2].Nodes.Add("Комментировать события");
-                    Tree.Nodes.Add("Учёт рабочего времени");
-                    Tree.Nodes.Add("Генератор отчётов");
-                    Tree.Nodes.Add("Оболочка");
-                    Tree.Nodes.Add("Персональная карточка");
-                    break;
-                case 2 or 3:
-                    TypeKeyBox.Enabled = true;
-                    TypeKeyBox.SelectedIndex = 0;
-                    Tree.Nodes.Add("Хранить код ключа в приборах");
-                    Tree.Nodes[0].Checked = true;
-                    Tree.Nodes.Add("Хранить код ключа в ПКУ");
-                    Tree.Nodes.Add("Ключ заблокирован");
-                    Tree.Nodes.Add("Стоп-лист");
-                    break;
-            }
-
-        }
-
-
-        //Функция удаления паролей по id сотрудника
-        private void passDel_Click(object sender, EventArgs e)
-        {
-            userPB.Visible = true;
-            userPB.Maximum = 1;
-            string name = userlist.Text;
-            string owner = name.Remove(0, name.LastIndexOf("(") + 1);
-            owner = owner.Remove(owner.Length - 1, 1);
-            SqlCommand command = new SqlCommand("delete from pmark where owner = @ownerID", conn);
-            command.Parameters.AddWithValue("ownerID", owner);
-            command.ExecuteScalar();
-            userPB.Value++;
-            userPB.Visible = false;
-            userPB.Value = 0;
-        }
-
-
         private void Test_FormClosed(object sender, FormClosedEventArgs e)
         {
             set.Enabled = true;
             set.Focus();
         }
 
-        private void Tree_AfterCheck(object sender, TreeViewEventArgs e)
+        private void ComType_SelectedIndexChanged(object sender, EventArgs e)
         {
-            if (e.Node.Text == "Доступ к АБД")
+            rslist.Items.Clear();
+            rslist.Text = "";
+            SqlCommand command = new SqlCommand("select iif(DeviceVersionStr is null, name, name + ' ' + DeviceVersionStr) from dtypesElement where elementtype=4", conn);
+            SqlDataReader read = command.ExecuteReader();
+            while (read.Read())
             {
-                if (e.Node.Checked) 
-                for (int i = 0; i < 10; i++)
-                    Tree.Nodes[1].Nodes[i].Checked = true;
-                else
-                    for (int i = 0; i < 10; i++)
-                        Tree.Nodes[1].Nodes[i].Checked = false;
+                rslist.Items.Add(read.GetValue(0).ToString());
             }
-
-            if (e.Node.Text == "Оперативная задача")
-            {
-                if (e.Node.Checked)
-                    for (int i = 0; i < 6; i++)
-                        Tree.Nodes[2].Nodes[i].Checked = true;
-                else
-                    for (int i = 0; i < 6; i++)
-                        Tree.Nodes[2].Nodes[i].Checked = false;
-            }
+            read.Close();
         }
     }
 }
