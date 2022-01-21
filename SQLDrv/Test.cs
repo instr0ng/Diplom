@@ -5,6 +5,9 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Data.SqlClient;
 using System.Net;
+using System.IO;
+using System.Text.Json;
+
 
 namespace SQLDrv
 {
@@ -106,6 +109,19 @@ namespace SQLDrv
             "Фомевна", "Станиславовна", "Ираклиевна", "Анатолиевна", "Феликсовна", "Потаповна", "Потаповна", "Петровна", "Тихоновна", "Якововна", "Федотовна", "Юлиевна"
         };
 
+        public class Rootobject
+        {
+            public Gender[] Gender { get; set; }
+        }
+
+        public class Gender
+        {
+            public string[] FirstName { get; set; }
+            public string[] LastName { get; set; }
+            public string[] MidName { get; set; }
+        }
+
+
         //Функция для выбора всех чекбоксов
         private void CompAllCheck_CheckedChanged(object sender, EventArgs e)
         {
@@ -184,88 +200,88 @@ namespace SQLDrv
                 command.ExecuteNonQuery();
             }
 
-                command = new SqlCommand(
-                    "DECLARE @ncom INT, @rscomid INT, @rstypeid INT, @rs INT, @rscnt INT, @ipc INT, @icom INT, @irs INT, @jrs INT, @idev INT, @addr INT, @cntReader INT, @cntKey INT, @cntShl INT \n" +
-                    "DECLARE @rsname varchar(50) \n" +
-                    $"DECLARE @pcid INT, @comid INT, @rsid INT, @devid INT \n" +
-                    $"SET @pcid = {pcid} \n" +
-                    $"SET @rscnt = {rslist.CheckedItems.Count} \n" +
-                    $"SET @devid = {DevItmID} \n" +
-                    $"SET @comid = {comid} \n" +
-                    $"SET @rsid = {rsid} \n" +
-                    $"SET @ipc = 1 \n" +
-                    $"SET @icom = 1 \n" +
-                    $"SET @irs = 1 \n" +
-                    $"SET @idev = 1 \n" +
-                    $"SET @jrs = 1; \n" +
-                    $"set @irs = 1 \n" +
-                    $"WHILE @ipc <= {countPC.Value} \n" +
+            command = new SqlCommand(
+                "DECLARE @ncom INT, @rscomid INT, @rstypeid INT, @rs INT, @rscnt INT, @ipc INT, @icom INT, @irs INT, @jrs INT, @idev INT, @addr INT, @cntReader INT, @cntKey INT, @cntShl INT \n" +
+                "DECLARE @rsname varchar(50) \n" +
+                $"DECLARE @pcid INT, @comid INT, @rsid INT, @devid INT \n" +
+                $"SET @pcid = {pcid} \n" +
+                $"SET @rscnt = {rslist.CheckedItems.Count} \n" +
+                $"SET @devid = {DevItmID} \n" +
+                $"SET @comid = {comid} \n" +
+                $"SET @rsid = {rsid} \n" +
+                $"SET @ipc = 1 \n" +
+                $"SET @icom = 1 \n" +
+                $"SET @irs = 1 \n" +
+                $"SET @idev = 1 \n" +
+                $"SET @jrs = 1; \n" +
+                $"set @irs = 1 \n" +
+                $"WHILE @ipc <= {countPC.Value} \n" +
+                $"BEGIN \n" +
+                    $"insert into Comps values (@pcid, @pcid, '{CompsName.Text}' + convert(varchar, @ipc), NULL, '{pcip}', {Gtype},NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL); \n" +
+                    $"set @icom = 1 \n" +
+
+                    $"WHILE @icom <= {PortCount.Value} \n" +
                     $"BEGIN \n" +
-                        $"insert into Comps values (@pcid, @pcid, '{CompsName.Text}' + convert(varchar, @ipc), NULL, '{pcip}', {Gtype},NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL); \n" +
-                        $"set @icom = 1 \n" +
+                        $"insert into Comports values(@comid, @pcid, @icom, 2, 3, {ComType.SelectedIndex + 1}, NULL, '127.0.0.1', 1, NULL, NULL, 1, NULL, 9600);  \n" +
+                        $"set @irs = 1 \n" +
+                        $"set @addr = 1 \n " +
 
-                        $"WHILE @icom <= {PortCount.Value} \n" +
+                        $"WHILE @irs <= @rscnt \n" +
                         $"BEGIN \n" +
-                            $"insert into Comports values(@comid, @pcid, @icom, 2, 3, {ComType.SelectedIndex + 1}, NULL, '127.0.0.1', 1, NULL, NULL, 1, NULL, 9600);  \n" +
-                            $"set @irs = 1 \n" +
-                            $"set @addr = 1 \n " +
+                            $"set @rstypeid = (select distinct DeviceType from dtypesElement d join rslist r on (d.name = r.name and d.DeviceVersionStr is null) or (d.name + ' ' + d.DeviceVersionStr) = r.name  where r.id = @irs) \n" +
+                            $"set @rsname = (select distinct d.name from dtypesElement d join rslist r on (d.name = r.name and d.DeviceVersionStr is null) or (d.name + ' ' + d.DeviceVersionStr) = r.name where r.id = @irs) \n" +
+                            $"set @jrs = 1 \n" +
 
-                            $"WHILE @irs <= @rscnt \n" +
+                            $"WHILE @jrs <= {RScount.Value} \n" +
                             $"BEGIN \n" +
-                                $"set @rstypeid = (select distinct DeviceType from dtypesElement d join rslist r on (d.name = r.name and d.DeviceVersionStr is null) or (d.name + ' ' + d.DeviceVersionStr) = r.name  where r.id = @irs) \n" +
-                                $"set @rsname = (select distinct d.name from dtypesElement d join rslist r on (d.name = r.name and d.DeviceVersionStr is null) or (d.name + ' ' + d.DeviceVersionStr) = r.name where r.id = @irs) \n" +
-                                $"set @jrs = 1 \n" +
+                                $"insert into RSLines values (@rsid, @rsid, @comid, 0, @addr, substring(@rsname, 1, 25), @rstypeid, NULL, 0, 0, 0, '127.0.0.1', NULL, NULL, NULL, 0, 0, NULL, 0, 1, 0, NULL, 0, 1, NULL); \n" +
+                                $"set @cntReader = (select distinct CountReader from dTypesElement where name = @rsname and DeviceVersionStr IS NULL) \n" +
+                                $"set @cntKey = (select distinct CountKey from dTypesElement where (name = @rsname and DeviceVersionStr is null) or (name + ' ' + DeviceVersionStr) = @rsname) \n" +
+                                $"set @cntShl = (select distinct CountShl from dTypesElement where (name = @rsname and DeviceVersionStr is null) or (name + ' ' + DeviceVersionStr) = @rsname) \n" +
+                                $"set @idev = 1 \n" +
 
-                                $"WHILE @jrs <= {RScount.Value} \n" +
+                                $"WHILE @idev <= @cntReader \n" +
                                 $"BEGIN \n" +
-                                    $"insert into RSLines values (@rsid, @rsid, @comid, 0, @addr, substring(@rsname, 1, 25), @rstypeid, NULL, 0, 0, 0, '127.0.0.1', NULL, NULL, NULL, 0, 0, NULL, 0, 1, 0, NULL, 0, 1, NULL); \n" +
-                                    $"set @cntReader = (select distinct CountReader from dTypesElement where name = @rsname and DeviceVersionStr IS NULL) \n" +
-                                    $"set @cntKey = (select distinct CountKey from dTypesElement where (name = @rsname and DeviceVersionStr is null) or (name + ' ' + DeviceVersionStr) = @rsname) \n" +
-                                    $"set @cntShl = (select distinct CountShl from dTypesElement where (name = @rsname and DeviceVersionStr is null) or (name + ' ' + DeviceVersionStr) = @rsname) \n" +
-                                    $"set @idev = 1 \n" +
-
-                                    $"WHILE @idev <= @cntReader \n" +
-                                    $"BEGIN \n" +
-                                        $"insert into DevItems values (@devid, @pcid, @rsid, @addr * 256 + @idev, @devid, 'Считыватель ' + convert(varchar, @idev) + ', Прибор ' + convert(varchar, @addr), Null, 0, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) \n" +
-                                        $"set @idev = @idev + 1 \n" +
-                                        $"set @devid = @devid + 1 \n" +
-                                    $"END \n" +
-                                    $"set @idev = 1 \n" +
-
-                                    $"WHILE @idev <= @cntKey \n" +
-                                    $"BEGIN \n" +
-                                        $"insert into DevItems values (@devid, @pcid, @rsid, @addr * 256 + @idev, @devid, 'Реле ' + convert(varchar, @idev) + ', Прибор ' + convert(varchar, @addr), Null, 0, 9, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) \n" +
-                                        $"set @idev = @idev + 1 \n" +
-                                        $"set @devid = @devid + 1 \n" +
-                                    $"END \n" +
-                                    $"set @idev = 1 \n" +
-
-                                    $"WHILE @idev <= @cntShl \n" +
-                                    $"BEGIN \n" +
-                                        $"insert into DevItems values (@devid, @pcid, @rsid, @addr * 256 + @idev, @devid, 'ШС ' + convert(varchar, @idev) + ', Прибор ' + convert(varchar, @addr), Null, 0, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) \n" +
-                                        $"set @idev = @idev + 1 \n" +
-                                        $"set @devid = @devid + 1 \n" +
-                                    $"END \n" +
-
-                                    $"set @addr = @addr + 1 \n" +
-                                    $"set @jrs = @jrs + 1 \n" +
-                                    $"set @rsid = @rsid + 1 \n" +
+                                    $"insert into DevItems values (@devid, @pcid, @rsid, @addr * 256 + @idev, @devid, 'Считыватель ' + convert(varchar, @idev) + ', Прибор ' + convert(varchar, @addr), Null, 0, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) \n" +
+                                    $"set @idev = @idev + 1 \n" +
+                                    $"set @devid = @devid + 1 \n" +
                                 $"END \n" +
-                            $"set @irs = @irs + 1 \n" +
-                            $"END \n" +
+                                $"set @idev = 1 \n" +
 
-                            $"set @icom = @icom + 1 \n" +
-                            $"set @comid = @comid + 1 \n" +
+                                $"WHILE @idev <= @cntKey \n" +
+                                $"BEGIN \n" +
+                                    $"insert into DevItems values (@devid, @pcid, @rsid, @addr * 256 + @idev, @devid, 'Реле ' + convert(varchar, @idev) + ', Прибор ' + convert(varchar, @addr), Null, 0, 9, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) \n" +
+                                    $"set @idev = @idev + 1 \n" +
+                                    $"set @devid = @devid + 1 \n" +
+                                $"END \n" +
+                                $"set @idev = 1 \n" +
+
+                                $"WHILE @idev <= @cntShl \n" +
+                                $"BEGIN \n" +
+                                    $"insert into DevItems values (@devid, @pcid, @rsid, @addr * 256 + @idev, @devid, 'ШС ' + convert(varchar, @idev) + ', Прибор ' + convert(varchar, @addr), Null, 0, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL) \n" +
+                                    $"set @idev = @idev + 1 \n" +
+                                    $"set @devid = @devid + 1 \n" +
+                                $"END \n" +
+
+                                $"set @addr = @addr + 1 \n" +
+                                $"set @jrs = @jrs + 1 \n" +
+                                $"set @rsid = @rsid + 1 \n" +
+                            $"END \n" +
+                        $"set @irs = @irs + 1 \n" +
                         $"END \n" +
 
-                        $"set @ipc = @ipc + 1; \n" +
-                        $"set @pcid = @pcid + 1; \n" +
-                    $"END", conn);
+                        $"set @icom = @icom + 1 \n" +
+                        $"set @comid = @comid + 1 \n" +
+                    $"END \n" +
 
-                command.CommandTimeout = 500;
+                    $"set @ipc = @ipc + 1; \n" +
+                    $"set @pcid = @pcid + 1; \n" +
+                $"END", conn);
 
-                await command.ExecuteNonQueryAsync();
-            
+            command.CommandTimeout = 500;
+
+            await command.ExecuteNonQueryAsync();
+
 
             time.Text = "Объекты добавлены";
             time.ForeColor = Color.Green;
@@ -317,7 +333,7 @@ namespace SQLDrv
             progressBar1.Value++;
             command = new SqlCommand("delete from comps where name like '%" + DelcompID + "%'", conn);
             command.ExecuteNonQuery();
-            
+
             progressBar1.Value++;
             progressBar1.Visible = false;
             progressBar1.Value = 0;
@@ -522,35 +538,27 @@ namespace SQLDrv
         private void userINS_Click(object sender, EventArgs e)
         {
             Random rand = new Random();
+
             userPB.Visible = true;
             userPB.Maximum = (int)userNum.Value;
+            String fs = File.ReadAllText("NameSpisok.json");
+            Rootobject user = JsonSerializer.Deserialize<Rootobject>(fs);
             for (int i = 0; i < userNum.Value; i++)
             {
                 SqlCommand command = new SqlCommand("select coalesce(max(ID) + 1, 1) from pList", conn);
                 string ListID = command.ExecuteScalar().ToString();
+
                 int pol = rand.Next(0, 2);
-                if (pol == 0)
-                {
                     command = new SqlCommand("insert pList (ID, Name, FirstName, MidName, status, Schedule, TabNumber, ChangeTime) values (@ID, @Name, @Fname, @Mname, @status, 0, @ID, @Time)", conn);
                     command.Parameters.AddWithValue("ID", ListID);
-                    command.Parameters.AddWithValue("Name", Mfam[rand.Next(0, 100)]);
-                    command.Parameters.AddWithValue("Fname", Mname[rand.Next(0, 100)]);
-                    command.Parameters.AddWithValue("Mname", Motch[rand.Next(0, 100)]);
+                    command.Parameters.AddWithValue("Name", user.Gender[pol].LastName[rand.Next(0,100)]);
+                    command.Parameters.AddWithValue("Fname", user.Gender[pol].FirstName[rand.Next(0, 100)]);
+                    command.Parameters.AddWithValue("Mname", user.Gender[pol].MidName[rand.Next(0, 100)]);
                     command.Parameters.AddWithValue("Status", rand.Next(1, 8));
                     command.Parameters.AddWithValue("Time", DateTime.Now);
                     command.ExecuteScalar();
-                }
-                else
-                {
-                    command = new SqlCommand("insert pList (ID, Name, FirstName, MidName, status, Schedule, TabNumber, ChangeTime) values (@ID, @Name, @Fname, @Mname, @status, 0, @ID, @Time)", conn);
-                    command.Parameters.AddWithValue("ID", ListID);
-                    command.Parameters.AddWithValue("Name", Wfam[rand.Next(0, 100)]);
-                    command.Parameters.AddWithValue("Fname", Wname[rand.Next(0, 100)]);
-                    command.Parameters.AddWithValue("Mname", Wotch[rand.Next(0, 100)]);
-                    command.Parameters.AddWithValue("Status", rand.Next(1, 8));
-                    command.Parameters.AddWithValue("Time", DateTime.Now);
-                    command.ExecuteScalar();
-                }
+                
+                
                 userPB.Value++;
             }
             userPB.Visible = false;
