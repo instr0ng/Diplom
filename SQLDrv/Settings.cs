@@ -386,57 +386,45 @@ namespace SQLDrv
 
                                 if (box[i].Items.Count != 0)
                                     box[i].SelectedIndex = box[i].Items.Count - 1;
-
-                                if (box[i].SelectedIndex != -1)
-                                    buf = box[i].Text;
                                 
-                                box[i + 1].Items.Clear();
-                                box[i].Text = "";
                                 ///////////////////////////////////////////////////////////////////
                                 break;
 
                             case "PORTID":
                                 //////////////////////////////////////////////////////////////////
-                                if ((box[i - 1].SelectedIndex > -1))
+                                box[i].Items.Clear();
+                                box[i].Text = "";
+
+                                command = new SqlCommand($"select cp.porttype, cp.Number from comps c join comports cp on c.id = cp.computerID where c.name = '{RSPCBox.Text}'", sqlConnection);  /*RSInterfaceBox.SelectedIndex + 1 получать список портов и по ним определять приборы которые могут быть на этом порте */
+                                read = command.ExecuteReader();
+                                while (read.Read())
                                 {
-                                    command = new SqlCommand($"select cp.porttype, cp.Number from comps c join comports cp on c.id = cp.computerID where c.name = '{box[i - 1].Text}'", sqlConnection);  /*RSInterfaceBox.SelectedIndex + 1 получать список портов и по ним определять приборы которые могут быть на этом порте */
-                                    read = command.ExecuteReader();
-                                    while (read.Read())
+                                    if (read.GetValue(0).ToString() == "1")
                                     {
-                                        if (read.GetValue(0).ToString() == "1")
-                                        {
-                                            box[i].Items.Add("COM " + read.GetValue(1).ToString());
-                                        }
-                                        else
-                                        {
-                                            box[i].Items.Add("LAN " + read.GetValue(1).ToString());
-                                        }
+                                        box[i].Items.Add("COM " + read.GetValue(1).ToString());
                                     }
-                                    read.Close();
+                                    else
+                                    {
+                                        box[i].Items.Add("LAN " + read.GetValue(1).ToString());
+                                    }
                                 }
-                                if ((box[i].SelectedIndex > -1) && (buf != null))
-                                {
-                                    command = new SqlCommand($"select cp.ID from comps c join comports cp on c.id = cp.computerID where c.name = '{buf}'", sqlConnection);
-                                    buf = command.ExecuteScalar().ToString();
-                                }
-                                
-                                box[i + 1].Items.Clear();
-                                box[i + 1].Text = "";
-                                box[i + 2].Items.Clear();
-                                box[i + 2].Text = "";
+                                read.Close();
                                 ///////////////////////////////////////////////////////////
                                 break;
 
                             case "PARID":
-                                if ((box[i - 1].SelectedIndex > -1) && (buf != "-"))
-                                {
-                                    box[i].Items.Add("");
-                                    command = new SqlCommand($"select name from rslines where comportID = {buf}", sqlConnection);
-                                    read = command.ExecuteReader();
-                                    while (read.Read())
-                                        box[i].Items.Add(read.GetValue(0).ToString());
-                                    read.Close();
-                                }
+
+                                command = new SqlCommand($"select cp.ID from comps c join comports cp on c.id = cp.computerID where c.name = '{RSPCBox.Text}' and cp.number = '{RSPortBox.Text[4..]}'", sqlConnection);
+                                buf = command.ExecuteScalar().ToString();
+
+                                box[i].Items.Clear();
+                                box[i].Text = "";
+                                box[i].Items.Add("");
+                                command = new SqlCommand($"select name from rslines where comportID = {buf}", sqlConnection);
+                                read = command.ExecuteReader();
+                                while (read.Read())
+                                    box[i].Items.Add(read.GetValue(0).ToString());
+                                read.Close();
                                 break;
 
                             case "TYPEID":
@@ -444,7 +432,7 @@ namespace SQLDrv
                                 
                                     box[i].Items.Clear();
                                     box[i].Text = "";
-                                    command = new SqlCommand("select name from dtypesElement where elementtype = 4", sqlConnection);
+                                    command = new SqlCommand($"select name from dtypesElement dt join protocoldevice pd on dt.id = pd.device_type_id join interfaceprotocol ifp on pd.protocol_id = ifp.protocol_id join comports cp on ifp.interface_id = cp.porttype where cp.id = {buf}", sqlConnection);
                                     read = command.ExecuteReader();
                                     while (read.Read())
                                     {
@@ -809,21 +797,14 @@ namespace SQLDrv
         {
             ComboBox box = (ComboBox)sender;
             if (box.Focused)
-                UpdComboBoxes(box, RSPortBox, RSParentBox);
+                UpdComboBoxes(RSPortBox);
         }
 
         private void RSPortBox_SelectedIndexChanged(object sender, EventArgs e)
         {
             ComboBox box = (ComboBox)sender;
             if (box.Focused)
-                UpdComboBoxes(RSPCBox, box, RSParentBox);
-        }
-
-        private void RSInterfaceBox_SelectedIndexChanged(object sender, EventArgs e)
-        {
-            ComboBox box = (ComboBox)sender;
-            if (box.Focused)
-                UpdComboBoxes(RSPCBox, RSPortBox, RSParentBox);
+                UpdComboBoxes(RSParentBox, RSTypeBox );
         }
 
         private void CompAllCheck_CheckedChanged(object sender, EventArgs e)

@@ -1,0 +1,1 @@
+﻿select coalesce(name + ' ' + DeviceVersionStr, name), DeviceType from dTypesElement where ElementType = 4 order by DeviceType
