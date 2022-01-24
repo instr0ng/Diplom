@@ -59,25 +59,5 @@ namespace SQLDrv.Properties {
                 resourceCulture = value;
             }
         }
-        
-        /// <summary>
-        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap rorEzkH {
-            get {
-                object obj = ResourceManager.GetObject("rorEzkH", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
-        
-        /// <summary>
-        ///   Поиск локализованного ресурса типа System.Drawing.Bitmap.
-        /// </summary>
-        internal static System.Drawing.Bitmap VAyR {
-            get {
-                object obj = ResourceManager.GetObject("VAyR", resourceCulture);
-                return ((System.Drawing.Bitmap)(obj));
-            }
-        }
     }
 }

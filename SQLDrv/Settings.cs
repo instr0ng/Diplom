@@ -432,7 +432,7 @@ namespace SQLDrv
                                 
                                     box[i].Items.Clear();
                                     box[i].Text = "";
-                                    command = new SqlCommand($"select name from dtypesElement dt join protocoldevice pd on dt.id = pd.device_type_id join interfaceprotocol ifp on pd.protocol_id = ifp.protocol_id join comports cp on ifp.interface_id = cp.porttype where cp.id = {buf}", sqlConnection);
+                                    command = new SqlCommand($"select coalesce(b.name + ' ' + b.DeviceVersionStr, b.name) as dev from protocoldevices a inner join interfaceprotocol v on (v.protocol_id = a.protocol_id) inner join dTypesElement b on (a.device_type_id = b.Id) and(elementtype = 4) and v.interface_id = (select PortType from ComPorts where ID = {buf})", sqlConnection);
                                     read = command.ExecuteReader();
                                     while (read.Read())
                                     {
