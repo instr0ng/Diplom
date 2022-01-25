@@ -14,7 +14,7 @@ namespace SQLDrv
         public static SqlConnection sqlConnection = null;
 
         string currtab = null;
-        string compID = "", RSTypeID = "", RScompID = "", ComID = "", RSParID = "0";
+        string compID = "", RSTypeID = "", RScompID = "", ComID = "", RSParID = "0", RSInterface = "";
 
         public Settings()
         {
@@ -110,7 +110,7 @@ namespace SQLDrv
                         break;
                     }
 
-                    command = new SqlCommand($"select devicetype from dtypeselement where name = '{RSTypeBox.Text}'", sqlConnection);
+                    command = new SqlCommand($"select devicetype from dtypeselement where (name = '{RSTypeBox.Text}' and DeviceVersionStr is null) or (name + ' ' + DeviceVersionStr) = '{RSTypeBox.Text}'", sqlConnection);
                     RSTypeID = command.ExecuteScalar().ToString();
 
                     command = new SqlCommand($"select id from comps where name = '{RSPCBox.Text}'", sqlConnection);
@@ -126,10 +126,13 @@ namespace SQLDrv
                         RSParID = command.ExecuteScalar().ToString();
                     }
 
-                    Insert(currtab, RSIDBox.Text, RSIDBox.Text, ComID, RSParID, RSAddressBox.Text, /*интерфейс зависит от типа порта,*/ RSTypeBox.Text + " (" + RSAddressBox.Text + ")", RSIPBox.Text, RSTypeID);
+                    command = new SqlCommand($"select PortType from comports where id = (select cp.ID from comps c join comports cp on c.id = cp.computerID where c.name = '{RSPCBox.Text}' and cp.number = '{RSPortBox.Text[4..]}')", sqlConnection);
+                    RSInterface = command.ExecuteScalar().ToString();
+
+                    Insert(currtab, RSIDBox.Text, RSIDBox.Text, ComID, RSParID, RSAddressBox.Text, RSInterface, RSTypeBox.Text[0..20] + " (" + RSAddressBox.Text + ")", RSIPBox.Text, RSTypeID);
                     AddDev();
                     UpdTextBoxes(RSAutoID, RSIDBox);
-                    UpdComboBoxes(RSPCBox, RSPortBox, RSParentBox);
+                    UpdComboBoxes(RSParentBox, RSTypeBox);
                     break;
 
                 case "plist":
@@ -931,40 +934,44 @@ namespace SQLDrv
         private void AddDev()
         {
             SqlCommand command;
-            command = new SqlCommand($"select CountReader from dTypesElement where name = '{RSTypeBox.Text}'", sqlConnection);
+            command = new SqlCommand($"select CountReader from dTypesElement where (name = '{RSTypeBox.Text}' and DeviceVersionStr is null) or (name + ' ' + DeviceVersionStr) = '{RSTypeBox.Text}'", sqlConnection);
             int countReader = (int)command.ExecuteScalar();
 
-            int i = 0;
-            while (i --> countReader)
+            int i = 1;
+            
+            while (i <= countReader)
             {
                 command = new SqlCommand("select coalesce(max(ID)+1, 1) from DevItems", sqlConnection);
                 string DevItmID = command.ExecuteScalar().ToString();
                 command = new SqlCommand($"insert into DevItems values ({DevItmID}, {RScompID}, {RSIDBox.Text}, {Convert.ToInt32(RSAddressBox.Text) * 256 + i}, {DevItmID}, '{"Считыватель " + i + ", Прибор " + RSAddressBox.Text}', Null, 0, 8, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)", sqlConnection);
                 command.ExecuteNonQuery();
+                i++;
             }
 
-            command = new SqlCommand($"select CountKey from dTypesElement where name = '{RSTypeBox.Text}'", sqlConnection);
+            command = new SqlCommand($"select CountKey from dTypesElement where (name = '{RSTypeBox.Text}' and DeviceVersionStr is null) or (name + ' ' + DeviceVersionStr) = '{RSTypeBox.Text}'", sqlConnection);
             int countKey = (int)command.ExecuteScalar();
 
-            i = 0;
-            while (i --> countKey)
+            i = 1;
+            while (i <= countKey)
             {
                 command = new SqlCommand("select coalesce(max(ID)+1, 1) from DevItems", sqlConnection);
                 string DevItmID = command.ExecuteScalar().ToString();
                 command = new SqlCommand($"insert into DevItems values ({DevItmID}, {RScompID}, {RSIDBox.Text}, {Convert.ToInt32(RSAddressBox.Text) * 256 + i}, {DevItmID}, '{"Реле " + i + ", Прибор " + RSAddressBox.Text}', Null, 0, 9, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)", sqlConnection);
                 command.ExecuteNonQuery();
+                i++;
             }
 
-            command = new SqlCommand($"select CountShl from dTypesElement where name = '{RSTypeBox.Text}'", sqlConnection);
+            command = new SqlCommand($"select CountShl from dTypesElement where (name = '{RSTypeBox.Text}' and DeviceVersionStr is null) or (name + ' ' + DeviceVersionStr) = '{RSTypeBox.Text}'", sqlConnection);
             int countShl = (int)command.ExecuteScalar();
 
-            i = 0;
-            while (i --> countShl)
+            i = 1;
+            while (i <= countShl)
             {
                 command = new SqlCommand("select coalesce(max(ID)+1, 1) from DevItems", sqlConnection);
                 string DevItmID = command.ExecuteScalar().ToString();
-                command = new SqlCommand($"insert into DevItems values ({DevItmID}, {RScompID}, {RSIDBox.Text}, {Convert.ToInt32(RSAddressBox.Text) * 256 + i}, {DevItmID}, '{"ШС " + i + ", Прибор " + RSAddressBox.Text}', Null, 0, 9, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)", sqlConnection);
+                command = new SqlCommand($"insert into DevItems values ({DevItmID}, {RScompID}, {RSIDBox.Text}, {Convert.ToInt32(RSAddressBox.Text) * 256 + i}, {DevItmID}, '{"ШС " + i + ", Прибор " + RSAddressBox.Text}', Null, 0, 3, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL, NULL)", sqlConnection);
                 command.ExecuteNonQuery();
+                i++;
             }
         }
 

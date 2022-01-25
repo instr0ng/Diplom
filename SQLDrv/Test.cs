@@ -493,7 +493,7 @@ namespace SQLDrv
         {
             rslist.Items.Clear();
             rslist.Text = "";
-            SqlCommand command = new SqlCommand("select iif(DeviceVersionStr is null, name, name + ' ' + DeviceVersionStr) from dtypesElement where elementtype=4", conn);
+            SqlCommand command = new SqlCommand("select coalesce(b.name + ' ' + b.DeviceVersionStr, b.name) from dtypesElement where elementtype=4", conn);
             SqlDataReader read = command.ExecuteReader();
             while (read.Read())
             {
