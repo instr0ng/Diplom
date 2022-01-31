@@ -264,7 +264,7 @@ namespace SQLDrv
             // 
             this.ComType.FormattingEnabled = true;
             this.ComType.Items.AddRange(new object[] {
-            "COM ",
+            "COM",
             "LAN",
             "USB",
             "GSM"});

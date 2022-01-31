@@ -493,7 +493,7 @@ namespace SQLDrv
         {
             rslist.Items.Clear();
             rslist.Text = "";
-            SqlCommand command = new SqlCommand("select coalesce(b.name + ' ' + b.DeviceVersionStr, b.name) from dtypesElement where elementtype=4", conn);
+            SqlCommand command = new SqlCommand($"select coalesce(b.name + ' ' + b.DeviceVersionStr, b.name) as dev from protocoldevices a inner join interfaceprotocol v on (v.protocol_id = a.protocol_id) inner join dTypesElement b on (a.device_type_id = b.Id) and (elementtype = 4) and v.interface_id = (select id from interfaces where name = '{ComType.Text}')", conn);
             SqlDataReader read = command.ExecuteReader();
             while (read.Read())
             {
