@@ -15,6 +15,7 @@ namespace SQLDrv
 
         string currtab = null;
         string compID = "", RSTypeID = "", RScompID = "", ComID = "", RSParID = "0", RSInterface = "";
+        bool err;
 
         public Settings()
         {
@@ -120,17 +121,26 @@ namespace SQLDrv
                     command = new SqlCommand($"select id from comports where computerID = {RScompID} and number = {ComID}", sqlConnection);
                     ComID = command.ExecuteScalar().ToString();
 
-                    if (RSParentBox.SelectedIndex > -1)
+                    if (RSParentBox.SelectedIndex <1)
+                    {
+                        RSParID = "0";
+                    }
+                    else
                     {
                         command = new SqlCommand($"select id from rslines where comportID = {ComID} and name = '{RSParentBox.Text}'", sqlConnection);
                         RSParID = command.ExecuteScalar().ToString();
+
                     }
 
                     command = new SqlCommand($"select PortType from comports where id = (select cp.ID from comps c join comports cp on c.id = cp.computerID where c.name = '{RSPCBox.Text}' and cp.number = '{RSPortBox.Text[4..]}')", sqlConnection);
                     RSInterface = command.ExecuteScalar().ToString();
 
-                    Insert(currtab, RSIDBox.Text, RSIDBox.Text, ComID, RSParID, RSAddressBox.Text, RSInterface, RSTypeBox.Text[0..20] + " (" + RSAddressBox.Text + ")", RSIPBox.Text, RSTypeID);
-                    AddDev();
+
+
+                    Insert(currtab, RSIDBox.Text, RSIDBox.Text, ComID, RSParID, RSAddressBox.Text, RSInterface, RSTypeBox.Text + " (" + RSAddressBox.Text + ")", RSIPBox.Text, RSTypeID);
+                    if (!err)
+                        AddDev();
+
                     UpdTextBoxes(RSAutoID, RSIDBox);
                     UpdComboBoxes(RSParentBox, RSTypeBox);
                     break;
@@ -600,7 +610,7 @@ namespace SQLDrv
                         UpdTextBoxes(RSAutoID, RSIDBox);
                         UpdTextBoxes(RSAutoIP, RSIPBox);
                         UpdTextBoxes(AutoAddr, RSAddressBox);
-                        UpdComboBoxes(/*RSInterfaceBox, поменять порядок боксов*/ RSPCBox, RSPortBox);
+                        UpdComboBoxes(RSPCBox, RSPortBox);
                     }
                     break;
 
@@ -651,6 +661,7 @@ namespace SQLDrv
                                                                 // AccessZone - ID, Name, Gindex
                                                                 // AcessPoint - ID, ComputerID, Name, Gindex, Gtype, InKeyID, OutKeyID, OutCommand, Mode, IndexZone1, IndexZone2
         {
+            err = false;
             if (args.Length == 0)
                 return;
 
@@ -666,6 +677,7 @@ namespace SQLDrv
                     catch (Exception exception)
                     {
                         MessageBox.Show("Введены неккоректные или повторяющиеся данные." + '\n' + '\n' + exception.Message);
+                        err = true;
                     }
                     break;
 
@@ -678,6 +690,7 @@ namespace SQLDrv
                     catch (Exception exception)
                     {
                         MessageBox.Show("Введены неккоректные или повторяющиеся данные." + '\n' + '\n' + exception.Message);
+                        err = true;
                     }
                     break;
 
@@ -691,6 +704,7 @@ namespace SQLDrv
                     catch (Exception exception)
                     {
                         MessageBox.Show("Введены неккоректные или повторяющиеся данные." + '\n' + '\n' + exception.Message);
+                        err = true;
                     }
                     break;
 
@@ -703,6 +717,7 @@ namespace SQLDrv
                     catch (Exception exception)
                     {
                         MessageBox.Show("Введены неккоректные или повторяющиеся данные" + '\n' + '\n' + exception.Message);
+                        err = true;
                     }
                     break;
 
@@ -715,6 +730,7 @@ namespace SQLDrv
                     catch (Exception exception)
                     {
                         MessageBox.Show("Введены неккоректные или повторяющиеся данные" + '\n' + '\n' + exception.Message);
+                        err = true;
                     }
                     break;
 
@@ -727,6 +743,7 @@ namespace SQLDrv
                     catch (Exception exception)
                     {
                         MessageBox.Show("Введены неккоректные или повторяющиеся данные" + '\n' + '\n' + exception.Message);
+                        err = true;
                     }
                     break;
 
@@ -739,6 +756,7 @@ namespace SQLDrv
                     catch (Exception exception)
                     {
                         MessageBox.Show("Введены неккоректные или повторяющиеся данные" + '\n' + '\n' + exception.Message);
+                        err = true;
                     }
                     break;
             }
@@ -934,7 +952,7 @@ namespace SQLDrv
         private void AddDev()
         {
             SqlCommand command;
-            command = new SqlCommand($"select CountReader from dTypesElement where (name = '{RSTypeBox.Text}' and DeviceVersionStr is null) or (name + ' ' + DeviceVersionStr) = '{RSTypeBox.Text}'", sqlConnection);
+            command = new SqlCommand($"select CountReader from dTypesElement where (name = '{RSTypeBox.Text}' and DeviceVersionStr is null) or ((name + ' ' + DeviceVersionStr) = '{RSTypeBox.Text}')", sqlConnection);
             int countReader = (int)command.ExecuteScalar();
 
             int i = 1;
@@ -948,7 +966,7 @@ namespace SQLDrv
                 i++;
             }
 
-            command = new SqlCommand($"select CountKey from dTypesElement where (name = '{RSTypeBox.Text}' and DeviceVersionStr is null) or (name + ' ' + DeviceVersionStr) = '{RSTypeBox.Text}'", sqlConnection);
+            command = new SqlCommand($"select CountKey from dTypesElement where (name = '{RSTypeBox.Text}' and DeviceVersionStr is null) or ((name + ' ' + DeviceVersionStr) = '{RSTypeBox.Text}')", sqlConnection);
             int countKey = (int)command.ExecuteScalar();
 
             i = 1;
@@ -961,7 +979,7 @@ namespace SQLDrv
                 i++;
             }
 
-            command = new SqlCommand($"select CountShl from dTypesElement where (name = '{RSTypeBox.Text}' and DeviceVersionStr is null) or (name + ' ' + DeviceVersionStr) = '{RSTypeBox.Text}'", sqlConnection);
+            command = new SqlCommand($"select CountShl from dTypesElement where (name = '{RSTypeBox.Text}' and DeviceVersionStr is null) or ((name + ' ' + DeviceVersionStr) = '{RSTypeBox.Text}')", sqlConnection);
             int countShl = (int)command.ExecuteScalar();
 
             i = 1;
