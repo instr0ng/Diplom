@@ -1,1 +1,0 @@
-﻿select coalesce(b.name + ' ' + b.DeviceVersionStr, b.name), a.InterfaceID, a.ProtocolID, a.NameLine as dev from dTypesElement b join DeviceTypesLines a on b.id = a.DeviceTypeID where b.ElementType = 4

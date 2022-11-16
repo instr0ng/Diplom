@@ -244,7 +244,7 @@ namespace SQLDrv
             // TestBT
             // 
             this.TestBT.Enabled = false;
-            this.TestBT.Location = new System.Drawing.Point(1231, 0);
+            this.TestBT.Location = new System.Drawing.Point(1219, 1);
             this.TestBT.Name = "TestBT";
             this.TestBT.Size = new System.Drawing.Size(250, 27);
             this.TestBT.TabIndex = 10;
@@ -865,7 +865,7 @@ namespace SQLDrv
             // 
             this.RSPortBox.AccessibleName = "PORTID";
             this.RSPortBox.FormattingEnabled = true;
-            this.RSPortBox.Location = new System.Drawing.Point(171, 142);
+            this.RSPortBox.Location = new System.Drawing.Point(171, 145);
             this.RSPortBox.Name = "RSPortBox";
             this.RSPortBox.Size = new System.Drawing.Size(121, 23);
             this.RSPortBox.TabIndex = 2;

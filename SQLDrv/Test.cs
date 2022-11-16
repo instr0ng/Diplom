@@ -215,18 +215,31 @@ namespace SQLDrv
 
         private void potrCBx_CheckedChanged(object sender, EventArgs e)
         {
-            portGB.Enabled = true;
+            if (potrCBx.Checked)
+            {
+                portGB.Enabled = true;
+                RSCBx.Enabled = true;
+            }
+            else
+            {
+                portGB.Enabled = false;
+                RSCBx.Checked = false;
+                RSCBx.Enabled = false;
+            }
         }
 
         private void RSCBx_CheckedChanged(object sender, EventArgs e)
         {
-            RSGB.Enabled = true;
+            if (RSCBx.Checked)
+                RSGB.Enabled = true;
+            else
+                RSGB.Enabled = false;
         }
 
         //Загрузка формы
         private void Test_Load(object sender, EventArgs e)
         {
-            ComType.SelectedIndex = 1;
+            ComType.SelectedIndex = 0;
         }
 
         //Функция для удаления по названию компьютера
@@ -483,12 +496,6 @@ namespace SQLDrv
             userPB.Value = 0;
         }
 
-        private void Test_FormClosed(object sender, FormClosedEventArgs e)
-        {
-            set.Enabled = true;
-            set.Focus();
-        }
-
         private void ComType_SelectedIndexChanged(object sender, EventArgs e)
         {
             rslist.Items.Clear();
@@ -500,6 +507,12 @@ namespace SQLDrv
                 rslist.Items.Add(read.GetValue(0).ToString());
             }
             read.Close();
+        }
+
+        private void Test_FormClosed(object sender, FormClosedEventArgs e)
+        {
+            set.Enabled = true;
+            set.Focus();
         }
     }
 }

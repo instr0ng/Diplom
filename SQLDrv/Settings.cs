@@ -77,7 +77,7 @@ namespace SQLDrv
             switch (currtab)
             {
                 case "comps":
-                    if ((CompIDBox.Text == "") || (CompIPBox.Text == "") || (ComPCIDBox.Text == ""))
+                    if ((CompIDBox.Text == "") || (CompIPBox.Text == "") || (CompNameBox.Text == ""))
                     {
                         MessageBox.Show("Заполнены не все обязательные поля");
                         break;
@@ -129,20 +129,18 @@ namespace SQLDrv
                     {
                         command = new SqlCommand($"select id from rslines where comportID = {ComID} and name = '{RSParentBox.Text}'", sqlConnection);
                         RSParID = command.ExecuteScalar().ToString();
-
                     }
 
                     command = new SqlCommand($"select PortType from comports where id = (select cp.ID from comps c join comports cp on c.id = cp.computerID where c.name = '{RSPCBox.Text}' and cp.number = '{RSPortBox.Text[4..]}')", sqlConnection);
                     RSInterface = command.ExecuteScalar().ToString();
 
-
-
                     Insert(currtab, RSIDBox.Text, RSIDBox.Text, ComID, RSParID, RSAddressBox.Text, RSInterface, RSTypeBox.Text + " (" + RSAddressBox.Text + ")", RSIPBox.Text, RSTypeID);
                     if (!err)
                         AddDev();
 
+                    UpdComboBoxes(RSParentBox);
                     UpdTextBoxes(RSAutoID, RSIDBox);
-                    UpdComboBoxes(RSParentBox, RSTypeBox);
+                    UpdTextBoxes(AutoAddr, RSAddressBox);
                     break;
 
                 case "plist":
@@ -337,6 +335,8 @@ namespace SQLDrv
                 AutoAddr.Enabled = false;
             else
                 AutoAddr.Enabled = true;
+
+
         }
 
         //Функция обновления ComboBox'ов
@@ -438,6 +438,9 @@ namespace SQLDrv
                                 while (read.Read())
                                     box[i].Items.Add(read.GetValue(0).ToString());
                                 read.Close();
+
+                               
+
                                 break;
 
                             case "TYPEID":
@@ -611,6 +614,7 @@ namespace SQLDrv
                         UpdTextBoxes(RSAutoIP, RSIPBox);
                         UpdTextBoxes(AutoAddr, RSAddressBox);
                         UpdComboBoxes(RSPCBox, RSPortBox);
+                        AutoAddr.Enabled = false;
                     }
                     break;
 
@@ -643,7 +647,6 @@ namespace SQLDrv
         }
 
         //RSLINES-------------------------------------------------------------------
-
         private void TestBT_Click(object sender, EventArgs e)
         {
             Test Test = new Test(this);
@@ -652,11 +655,9 @@ namespace SQLDrv
         }
 
         //FUNCTIONS-----------------------------------------------------------------
-
         private void Insert(string table, params string[] args) // Comps - ID, GIndex, Name, GType, IP;
                                                                 // ComPorts - ID, ComputerID, Number, Adaptor, PrAdaptor, PortType, ProtocolType, IP, Baud
                                                                 // RSLines - ID, GIndex, ComPortID, PKUID, GLineNo, DeviceInterface, Name, type
-                                                                // DevItems - ID, ComputerID, DeviceID, Address, Gindex, ItemType, Name
                                                                 // pList - ID, Name, FirstName, MidName, status, Schedule, TabNumber, ChangeTime
                                                                 // AccessZone - ID, Name, Gindex
                                                                 // AcessPoint - ID, ComputerID, Name, Gindex, Gtype, InKeyID, OutKeyID, OutCommand, Mode, IndexZone1, IndexZone2
@@ -704,19 +705,6 @@ namespace SQLDrv
                     catch (Exception exception)
                     {
                         MessageBox.Show("Введены неккоректные или повторяющиеся данные." + '\n' + '\n' + exception.Message);
-                        err = true;
-                    }
-                    break;
-
-                case "devitems":
-                    try
-                    {
-                        command = new SqlCommand($"insert into devitems(ID, ComputerID, DeviceID, Address, Gindex, ItemType, Name) values({args[0]}, {args[1]}, {args[2]}, {args[3]}, {args[4]}, {args[5]}, '{args[6]}') ", sqlConnection);
-                        command.ExecuteNonQuery();
-                    }
-                    catch (Exception exception)
-                    {
-                        MessageBox.Show("Введены неккоректные или повторяющиеся данные" + '\n' + '\n' + exception.Message);
                         err = true;
                     }
                     break;
@@ -826,6 +814,7 @@ namespace SQLDrv
             ComboBox box = (ComboBox)sender;
             if (box.Focused)
                 UpdComboBoxes(RSParentBox, RSTypeBox );
+            AutoAddr.Enabled = true;
         }
 
         private void CompAllCheck_CheckedChanged(object sender, EventArgs e)

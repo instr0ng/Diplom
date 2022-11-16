@@ -156,6 +156,7 @@ namespace SQLDrv
             // RSCBx
             // 
             this.RSCBx.AutoSize = true;
+            this.RSCBx.Enabled = false;
             this.RSCBx.Location = new System.Drawing.Point(564, 6);
             this.RSCBx.Name = "RSCBx";
             this.RSCBx.Size = new System.Drawing.Size(132, 19);
