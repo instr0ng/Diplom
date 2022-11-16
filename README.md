@@ -13,7 +13,7 @@ I) Добавление одиночных элементов
   1. Добавление пользователей 
   ![image](https://user-images.githubusercontent.com/72348172/202149903-0a27a6b2-9646-4ade-92c8-20e9b1a0fb9a.png)
   2. Добавление портов подключения приборов
-  ![image](https://user-images.githubusercontent.com/72348172/202150082-7f7c50fa-9930-49fb-93c8-15ca7cd8461b.png)
+  ![image](https://user-images.githubusercontent.com/72348172/202152788-1b799e8a-13d2-46f8-aa49-0b5f71a423fe.png)
   3. Добавление приборов
   ![image](https://user-images.githubusercontent.com/72348172/202150159-2cfa5241-c51a-42e3-a617-5704e97deb70.png)
   4. Добавление сотрудников 
