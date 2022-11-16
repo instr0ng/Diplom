@@ -9,24 +9,24 @@
 База данных АРМ "Орион Про" представляет из себя обширную базу SQL где описаны взаимодействия между охроняеммыми объектами и приборами охраны
 
 # Основные функции программы
-##I) Добавление одиночных элементов
-  1. Добавление пользователей 
-  ![image](https://user-images.githubusercontent.com/72348172/202149903-0a27a6b2-9646-4ade-92c8-20e9b1a0fb9a.png)
-  2. Добавление портов подключения приборов
-  ![image](https://user-images.githubusercontent.com/72348172/202152788-1b799e8a-13d2-46f8-aa49-0b5f71a423fe.png)
-  3. Добавление приборов
-  ![image](https://user-images.githubusercontent.com/72348172/202150159-2cfa5241-c51a-42e3-a617-5704e97deb70.png)
-  4. Добавление сотрудников 
-  ![image](https://user-images.githubusercontent.com/72348172/202150481-9f6a7852-e903-4c06-ba4c-480274698e6f.png)
-  5. Добавления зон объектов и точек доступа(проходов между зонами)
-  ![image](https://user-images.githubusercontent.com/72348172/202150736-588302ae-e085-40ee-944e-03b2fdd9be9f.png)
-  ![image](https://user-images.githubusercontent.com/72348172/202150753-c9d8e968-011f-45fd-b0f5-f8a0e4f76e01.png)
-##II) Добавление множества элементов (для последующего тестирования администратора базы данных АРМ "Орион Про")
-  1. Добавление множества пользователей, портов на них и приборов заданых типов на каждый порт
-  ![image](https://user-images.githubusercontent.com/72348172/202151340-e1270b24-37e8-495b-b4f9-5a89f6e1e3d7.png)
-  2. Добавление множества приборов заданного типа на заданый порт 
-  ![image](https://user-images.githubusercontent.com/72348172/202151739-10ea4b40-0d25-4793-b611-4eb5aa3ba3db.png)
-  3. Добавление множества сотрудников со случайными именами и случайными должностями
-  ![image](https://user-images.githubusercontent.com/72348172/202153009-71b454e7-b3bb-4195-9468-ceec43a9d755.png)
+## I) Добавление одиночных элементов
+      1. Добавление пользователей 
+      ![image](https://user-images.githubusercontent.com/72348172/202149903-0a27a6b2-9646-4ade-92c8-20e9b1a0fb9a.png)
+      2. Добавление портов подключения приборов
+      ![image](https://user-images.githubusercontent.com/72348172/202152788-1b799e8a-13d2-46f8-aa49-0b5f71a423fe.png)
+      3. Добавление приборов
+      ![image](https://user-images.githubusercontent.com/72348172/202150159-2cfa5241-c51a-42e3-a617-5704e97deb70.png)
+      4. Добавление сотрудников 
+      ![image](https://user-images.githubusercontent.com/72348172/202150481-9f6a7852-e903-4c06-ba4c-480274698e6f.png)
+      5. Добавления зон объектов и точек доступа(проходов между зонами)
+      ![image](https://user-images.githubusercontent.com/72348172/202150736-588302ae-e085-40ee-944e-03b2fdd9be9f.png)
+      ![image](https://user-images.githubusercontent.com/72348172/202150753-c9d8e968-011f-45fd-b0f5-f8a0e4f76e01.png)
+## II) Добавление множества элементов (для последующего тестирования администратора базы данных АРМ "Орион Про")
+      1. Добавление множества пользователей, портов на них и приборов заданых типов на каждый порт
+      ![image](https://user-images.githubusercontent.com/72348172/202151340-e1270b24-37e8-495b-b4f9-5a89f6e1e3d7.png)
+      2. Добавление множества приборов заданного типа на заданый порт 
+      ![image](https://user-images.githubusercontent.com/72348172/202151739-10ea4b40-0d25-4793-b611-4eb5aa3ba3db.png)
+      3. Добавление множества сотрудников со случайными именами и случайными должностями
+      ![image](https://user-images.githubusercontent.com/72348172/202153009-71b454e7-b3bb-4195-9468-ceec43a9d755.png)
 
 
